@@ -1,4 +1,4 @@
-# Firebase Realtime Database Arduino Library for ARM/AVR WIFI Development Boards
+# Firebase RTDB Arduino Client for ARM/AVR WIFI Development Boards
 
 
 Google's Firebase Realtime Database Arduino Library for ARM/AVR WIFI Development Boards based on WiFiNINA library, v 1.0.0
