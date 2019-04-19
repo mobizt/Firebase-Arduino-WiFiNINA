@@ -1,3 +1,14 @@
+/*
+ * Created by K. Suwatchai (Mobizt)
+ * 
+ * Email: k_suwatchai@hotmail.com
+ * 
+ * Github: https://github.com/mobizt
+ * 
+ * Copyright (c) 2019 mobizt
+ *
+*/
+
 //Example shows how to connect to Firebase RTDB and construct queries to filter data
 
 //Required WiFiNINA Library for Arduino from https://github.com/arduino-libraries/WiFiNINA

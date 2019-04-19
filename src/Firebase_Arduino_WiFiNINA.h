@@ -1,15 +1,16 @@
 /*
-* Google's Firebase Realtime Database Arduino Library for ARM/AVR WIFI Development Boards based on WiFiNINA library, version 1.0.0
+* Google's Firebase Realtime Database Arduino Library for ARM/AVR WIFI Development Boards based on WiFiNINA library, version 1.0.1
 * 
 *
 * This library required WiFiNINA Library to be installed.
 * https://github.com/arduino-libraries/WiFiNINA
 * 
-* April 11, 2019
+* April 20, 2019
 * 
 * Feature Added:
 * 
 * Feature Fixed:
+* Fixed Boolean data type misconception
 * 
 * This library provides ARM/AVR WIFI Development Boards to perform REST API by GET PUT, POST, PATCH, DELETE data from/to with Google's Firebase database using get, set, update
 * and delete calls.
@@ -62,7 +63,8 @@
 
 #define DEF_STR_19 "null"
 #define DEF_STR_4 "."
-#define DEF_STR_108 "\"bool,"
+#define DEF_STR_106 "false"
+#define DEF_STR_107 "true"
 
 const char C_STR_0[] PROGMEM = "";
 const char C_STR_1[] PROGMEM = "/";
@@ -170,9 +172,9 @@ const char C_STR_102[] PROGMEM = "\"error\" : ";
 const char C_STR_103[] PROGMEM = "";
 const char C_STR_104[] PROGMEM = "";
 const char C_STR_105[] PROGMEM = "boolean";
-const char C_STR_106[] PROGMEM = "bool,0";
-const char C_STR_107[] PROGMEM = "bool,1";
-const char C_STR_108[] PROGMEM = "\"bool,";
+const char C_STR_106[] PROGMEM = "false";
+const char C_STR_107[] PROGMEM = "true";
+const char C_STR_108[] PROGMEM = "";
 const char C_STR_109[] PROGMEM = "cancel";
 const char C_STR_110[] PROGMEM = "auth_revoked";
 const char C_STR_111[] PROGMEM = "http://";

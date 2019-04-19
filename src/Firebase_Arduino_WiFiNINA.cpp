@@ -1,15 +1,16 @@
 /*
-* Google's Firebase Realtime Database Arduino Library for ARM/AVR WIFI Development Boards based on WiFiNINA library, version 1.0.0
+* Google's Firebase Realtime Database Arduino Library for ARM/AVR WIFI Development Boards based on WiFiNINA library, version 1.0.1
 * 
-* 
+*
 * This library required WiFiNINA Library to be installed.
 * https://github.com/arduino-libraries/WiFiNINA
 * 
-* April 11, 2019
+* April 20, 2019
 * 
 * Feature Added:
 * 
 * Feature Fixed:
+* Fixed Boolean data type misconception
 * 
 * This library provides ARM/AVR WIFI Development Boards to perform REST API by GET PUT, POST, PATCH, DELETE data from/to with Google's Firebase database using get, set, update
 * and delete calls.
@@ -375,10 +376,10 @@ int Firebase_Arduino_WiFiNINA::firebaseConnect(FirebaseData &dataObj, const char
       method != FirebaseMethod::DELETE)
   {
     memset(payloadStr, 0, payloadStrSize);
-    if (dataType == FirebaseDataType::STRING || dataType == FirebaseDataType::BOOLEAN)
+    if (dataType == FirebaseDataType::STRING)
       strCopy_T(payloadStr, 3);
     strcat(payloadStr, payload);
-    if (dataType == FirebaseDataType::STRING || dataType == FirebaseDataType::BOOLEAN)
+    if (dataType == FirebaseDataType::STRING)
       strCopy_T(payloadStr, 3);
   }
   
@@ -1240,9 +1241,8 @@ void Firebase_Arduino_WiFiNINA::setDataType(FirebaseData &dataObj, const char *d
 
     if (!typeSet)
     {
-      memset(temp, 0, len);
-      strncpy(temp, data, strlen(DEF_STR_108));
-      if (strcmp(temp, DEF_STR_108) == 0)
+
+      if (strcmp(data, DEF_STR_106) == 0 || strcmp(data, DEF_STR_107) == 0)
       {
         typeSet = true;
         dataObj._dataType = FirebaseDataType::BOOLEAN;
@@ -1616,9 +1616,7 @@ bool FirebaseData::boolData()
 {
   bool res;
   char *str = new char[10];
-  strCopy_T(str, 3, true, 10);
-  strCopy_T(str, 107);
-  strCopy_T(str, 3);
+  strCopy_T(str, 107, true, 10);
   if (strlen(_data) > 0 && _dataType == Firebase_Arduino_WiFiNINA::FirebaseDataType::BOOLEAN)
     res = strcmp(_data, str) == 0;
   delete[] str;
