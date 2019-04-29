@@ -1,17 +1,17 @@
 /*
-* Google's Firebase Realtime Database Arduino Library for ARM/AVR WIFI Development Boards based on WiFiNINA library, version 1.0.1
+* Google's Firebase Realtime Database Arduino Library for ARM/AVR WIFI Development Boards based on WiFiNINA library, version 1.0.2
 * 
 *
 * This library required WiFiNINA Library to be installed.
 * https://github.com/arduino-libraries/WiFiNINA
 * 
-* April 20, 2019
+* April 29, 2019
 * 
 * Feature Added:
 * 
 * Feature Fixed:
-* Fixed Boolean data type misconception
 * 
+*
 * This library provides ARM/AVR WIFI Development Boards to perform REST API by GET PUT, POST, PATCH, DELETE data from/to with Google's Firebase database using get, set, update
 * and delete calls.
 * 
@@ -465,7 +465,8 @@ bool Firebase_Arduino_WiFiNINA::sendRequest(FirebaseData &dataObj, const char *p
           delay(20);
           forceEndHTTP(dataObj);
           if (dataObj._http.http_connected())
-            return false;
+            if(!dataObj._isStream)
+              return false;
         }
         dataObj._httpConnected = false;
       }
@@ -1073,6 +1074,9 @@ void Firebase_Arduino_WiFiNINA::forceEndHTTP(FirebaseData &dataObj)
 void Firebase_Arduino_WiFiNINA::sendFirebaseRequest(FirebaseData &dataObj, const char *host, uint8_t method, const char *path, const char *auth, uint16_t payloadLength)
 {
 
+  uint8_t retryCount = 0;
+  uint8_t maxRetry = 5;
+
   uint16_t headerSize = 400;
   char *request = new char[headerSize];
   memset(request, 0, headerSize);
@@ -1109,7 +1113,14 @@ void Firebase_Arduino_WiFiNINA::sendFirebaseRequest(FirebaseData &dataObj, const
     dataObj._isStream = false;
   }
 
-  dataObj._http.http_sendRequest(request, "");
+  retryCount = 0;
+  while (dataObj._http.http_sendRequest(request, "") != 0)
+  {
+      retryCount++;
+      if (retryCount > maxRetry)
+          break;
+  }
+
 
   if (strlen(path) > 0)
   {

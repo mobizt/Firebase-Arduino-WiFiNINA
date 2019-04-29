@@ -11,6 +11,9 @@ The library supports Arduino MKR WiFi 1010, Arduino MKR VIDOR 4000 and Arduino U
 For Espressif MCUs, please try [ESP8266 Firebase Arduino library]( https://github.com/mobizt/Firebase-ESP8266) and [ESP32 Firebase Arduino library]( https://github.com/mobizt/Firebase-ESP32)
 
 
+For Arduino WiFi Shield 101 and Arduino MKR1000 WIFI, please try [Firebase Arduino Library for ARM/AVR WIFI Dev Boards based on WiFi101](https://github.com/mobizt/Firebase-Arduino-WiFi101)
+
+
 Copyright (c) 2019 K. Suwatchai (Mobizt).
 
 
@@ -23,6 +26,8 @@ Copyright (c) 2019 K. Suwatchai (Mobizt).
 This following devices were tested and work well.
 
  * Arduino UNO WiFi Rev.2
+
+ * Arduino MKR WiFi 1010
 
 
 
@@ -1338,4 +1343,30 @@ String payload();
 
 
 
+
+
+
+## License
+
+The MIT License (MIT)
+
+Copyright (c) 2019 K. Suwatchai (Mobizt)
+
+
+Permission is hereby granted, free of charge, to any person returning a copy of
+this software and associated documentation files (the "Software"), to deal in
+the Software without restriction, including without limitation the rights to
+use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+the Software, and to permit persons to whom the Software is furnished to do so,
+subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
