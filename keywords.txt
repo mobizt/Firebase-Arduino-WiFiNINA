@@ -1,0 +1,91 @@
+###############################################
+# Syntax Coloring Map Firebase-Arduino-WiFiNINA
+###############################################
+
+#######################################
+# Classes (KEYWORD1)
+#######################################
+
+Firebase	KEYWORD1
+FirebaseData	KEYWORD1
+QueryFilter	KEYWORD1
+
+
+###############################################
+# Methods and Functions for Firebase (KEYWORD2)
+###############################################
+
+begin	KEYWORD2
+reconnectWiFi	KEYWORD2
+pushInt	KEYWORD2
+pushFloat	KEYWORD2
+pushBool	KEYWORD2
+pushString	KEYWORD2
+pushJSON	KEYWORD2
+setInt	KEYWORD2
+setFloat	KEYWORD2
+setBool	KEYWORD2
+setString	KEYWORD2
+setJSON	KEYWORD2
+updateNode	KEYWORD2
+updateNodeSilent	KEYWORD2
+getInt	KEYWORD2
+getFloat	KEYWORD2
+getBool	KEYWORD2
+getString	KEYWORD2
+getJSON	KEYWORD2
+deleteNode	KEYWORD2
+beginStream	KEYWORD2
+readStream	KEYWORD2
+endStream	KEYWORD2
+errorToString	KEYWORD2
+
+###############################################
+# Methods for Firebase Data object (KEYWORD2)
+###############################################
+
+getWiFiClient	KEYWORD2
+pauseFirebase	KEYWORD2
+dataType	KEYWORD2
+eventType	KEYWORD2
+streamPath	KEYWORD2
+dataPath	KEYWORD2
+errorReason	KEYWORD2
+intData	KEYWORD2
+floatData	KEYWORD2
+boolData	KEYWORD2
+stringData	KEYWORD2
+jsonData	KEYWORD2
+pushName	KEYWORD2
+isStream	KEYWORD2
+httpConnected	KEYWORD2
+streamTimeout	KEYWORD2
+dataAvailable	KEYWORD2
+streamAvailable	KEYWORD2
+mismatchDataType	KEYWORD2
+httpCode	KEYWORD2
+bufferOverflow	KEYWORD2
+end	KEYWORD2
+payload	KEYWORD2
+queryFilter	KEYWORD2
+
+###############################################
+# Methods for QueryFilter (KEYWORD2)
+###############################################
+
+orderBy	KEYWORD2
+limitToFirst	KEYWORD2
+limitToLast	KEYWORD2
+startAt	KEYWORD2
+endAt	KEYWORD2
+startAt	KEYWORD2
+endAt	KEYWORD2
+equalTo	KEYWORD2
+equalTo	KEYWORD2
+
+#######################################
+# Struct (LITERAL1)
+#######################################
+
+FirebaseDataType	LITERAL1
+FirebaseMethod	LITERAL1
