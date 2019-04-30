@@ -703,7 +703,7 @@ class Firebase_Arduino_WiFiNINA
 
     void sendHeader(FirebaseData &dataObj, const char *host, uint8_t _method, const char *path, const char *auth, uint16_t payloadLength);
     void resetFirebasedataFlag(FirebaseData &dataObj);
-    bool handleTCPNotConnected(FirebaseData &dataObj);
+    bool handleNetClientNotConnected(FirebaseData &dataObj);
     void forceEndHTTP(FirebaseData &dataObj);
     int firebaseConnect(FirebaseData &dataObj, const char *path, const uint8_t method, uint8_t dataType, const char *payload);
     bool cancelCurrentResponse(FirebaseData &dataObj);

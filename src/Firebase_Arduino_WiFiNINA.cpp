@@ -535,7 +535,7 @@ bool Firebase_Arduino_WiFiNINA::getServerResponse(FirebaseData &dataObj)
 
   if (!dataObj._http.http_connected() || dataObj._interruptRequest)
     return cancelCurrentResponse(dataObj);
-  if (!handleTCPNotConnected(dataObj) || !dataObj._httpConnected)
+  if (!handleNetClientNotConnected(dataObj) || !dataObj._httpConnected)
     return false;
 
   bool flag = false;
@@ -577,7 +577,7 @@ bool Firebase_Arduino_WiFiNINA::getServerResponse(FirebaseData &dataObj)
   uint16_t charPos = 0;
 
   if (!dataObj._isStream)
-    while (client.connected() && !client.available() && millis() - dataTime < dataObj._http.tcpTimeout)
+    while (client.connected() && !client.available() && millis() - dataTime < dataObj._http.netClientTimeout)
       delay(1);
 
   dataTime = millis();
@@ -738,7 +738,7 @@ bool Firebase_Arduino_WiFiNINA::getServerResponse(FirebaseData &dataObj)
         charPos = 0;
       }
 
-      if (millis() - dataTime > dataObj._http.tcpTimeout)
+      if (millis() - dataTime > dataObj._http.netClientTimeout)
       {
         //cancelCurrentResponse(dataObj);
         dataObj._httpCode = HTTPC_ERROR_READ_TIMEOUT;
@@ -1308,7 +1308,7 @@ void Firebase_Arduino_WiFiNINA::resetFirebasedataFlag(FirebaseData &dataObj)
   dataObj._dataAvailable = false;
   memset(dataObj._pushName, 0, FBDATA_PUSH_NAME_LENGTH);
 }
-bool Firebase_Arduino_WiFiNINA::handleTCPNotConnected(FirebaseData &dataObj)
+bool Firebase_Arduino_WiFiNINA::handleNetClientNotConnected(FirebaseData &dataObj)
 {
   if (!dataObj._http.http_connected())
   {
