@@ -68,7 +68,7 @@ This following devices were tested and work well.
 ## Dependencies
 
 
-This library required [WiFiNINA Library](https://github.com/arduino-libraries/WiFiNINA) to be installed which can be installed through **Board Manager**
+This library required [WiFiNINA Library](https://github.com/arduino-libraries/WiFiNINA) to be installed which can be installed through **Boards Manager**
 
 
 ## Installing
