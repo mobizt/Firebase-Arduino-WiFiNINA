@@ -1,7 +1,7 @@
 # Firebase RTDB Arduino Client for ARM/AVR WIFI Dev Boards
 
 
-Google's Firebase Realtime Database Arduino Library for ARM/AVR WIFI Development Boards based on WiFiNINA library, v 1.0.3
+Google's Firebase Realtime Database Arduino Library for ARM/AVR WIFI Development Boards based on WiFiNINA library, v 1.0.4
 
 This client library provides the most reliable operations for read, store, update Firebase RTDB through REST API.
 
@@ -479,13 +479,13 @@ See [full examples](https://github.com/mobizt/Firebase-Arduino-WiFiNINA/tree/mas
 
 **Store Firebase's authentication credentials.**
 
-param *`host`* - Your Firebase database project host without http:// or https:// protocol e.g. Your_ProjectID.firebaseio.com.
+param **`host`** - Your Firebase database project host without http:// or https:// protocol e.g. Your_ProjectID.firebaseio.com.
 
-param *`auth`* - Your database secret.
+param **`auth`** - Your database secret.
 
-param *`wifiSSID`* - Your WiFi AP SSID.
+param **`wifiSSID`** - Your WiFi AP SSID.
 
-param *`wifiPSW`* - Your WiFi AP Password.
+param **`wifiPSW`** - Your WiFi AP Password.
 
 ```C++
 void begin(const String &host, const String &auth, const String &wifiSSID, const String &wifiPSW);
@@ -497,7 +497,7 @@ void begin(const String &host, const String &auth, const String &wifiSSID, const
 
 **Reconnect WiFi if lost connection.**
 
-param *`reconnect`* - The boolean to set/unset WiFi AP reconnection.
+param **`reconnect`** - The boolean to set/unset WiFi AP reconnection.
 
 ```C++
 void reconnectWiFi(bool reconnect);
@@ -509,13 +509,13 @@ void reconnectWiFi(bool reconnect);
 
 **Append new integer value to the defined database path.**
 
-param *`dataObj`* - Firebase Data Object to hold data and instances.
+param **`dataObj`** - Firebase Data Object to hold data and instances.
 
-param *`path`* - Target database path which integer value will be appended.
+param **`path`** - Target database path which integer value will be appended.
 
-param *`intValue`* - The appended value.
+param **`intValue`** - The appended value.
 
-return *`Boolean`* type status indicates the success of operation.
+return **`Boolean`** type status indicates the success of operation.
 
 The new appended node's key will be stored in Firebase Data object, 
 which its value can be accessed via function [FirebaseData object].pushName().
@@ -530,13 +530,13 @@ bool pushInt(FirebaseData &dataObj, const String &path, int intValue);
 
 **Append new float value to the defined database path.**
 
-param *`dataObj`* - Firebase Data Object to hold data and instances.
+param **`dataObj`** - Firebase Data Object to hold data and instances.
 
-param *`path`* - Target database path which float value will be appended.
+param **`path`** - Target database path which float value will be appended.
 
-param *`floatValue`* - The appended value.
+param **`floatValue`** - The appended value.
 
-return *`Boolean`* type status indicates the success of operation.
+return **`Boolean`** type status indicates the success of operation.
 
 The new appended node's key will be stored in Firebase Data object, 
 which its value can be accessed via function [FirebaseData object].pushName().
@@ -551,13 +551,13 @@ bool pushFloat(FirebaseData &dataObj, const String &path, float floatValue);
 
 **Append new Boolean value to the defined database path.**
 
-param *`dataObj`* - Firebase Data Object to hold data and instances.
+param **`dataObj`** - Firebase Data Object to hold data and instances.
 
-param *`path`* - Target database path which Boolean value will be appended.
+param **`path`** - Target database path which Boolean value will be appended.
 
-param *`boolValue`* - The appended value.
+param **`boolValue`** - The appended value.
 
-return *`Boolean`* type status indicates the success of operation.
+return **`Boolean`** type status indicates the success of operation.
 
 The new appended node's key will be stored in Firebase Data object, 
 which its value can be accessed via function [FirebaseData object].pushName().
@@ -571,13 +571,13 @@ bool pushBool(FirebaseData &dataObj, const String &path, bool boolValue);
 
 **Append new string (text) to the defined database path.**
 
-param *`dataObj`* - Firebase Data Object to hold data and instances.
+param **`dataObj`** - Firebase Data Object to hold data and instances.
 
-param *`path`* - Target database path which string will be appended.
+param **`path`** - Target database path which string will be appended.
 
-param *`stringValue`* - The appended value.
+param **`stringValue`** - The appended value.
 
-return *`Boolean`* type status indicates the success of operation.
+return **`Boolean`** type status indicates the success of operation.
 
 The new appended node's key stored in Firebase Data object, 
 which can be accessed via function [FirebaseData object].pushName().
@@ -592,13 +592,13 @@ bool pushString(FirebaseData &dataObj, const String &path, const String &stringV
 
 **Append new child nodes's key and value (using JSON data) to the defined database path.**
 
-param *`dataObj`* - Firebase Data Object to hold data and instances.
+param **`dataObj`** - Firebase Data Object to hold data and instances.
 
-param *`path`* - Target database path which key and value in JSON data will be appended.
+param **`path`** - Target database path which key and value in JSON data will be appended.
 
-param *`jsonString`* - The appended JSON string (should be valid JSON data).
+param **`jsonString`** - The appended JSON string (should be valid JSON data).
 
-return *`Boolean`* type status indicates the success of operation.
+return **`Boolean`** type status indicates the success of operation.
 
 The new appended node's key will be stored in Firebase Data object, 
 which its value can be accessed via function [FirebaseData object].pushName().
@@ -612,15 +612,34 @@ bool pushJSON(FirebaseData &dataObj, const String &path, const String &jsonStrin
 
 
 
+**Append new Firebase server's timestamp to the defined database path.**
+
+param **`dataObj`** - Firebase Data Object to hold data and instances.
+
+param **`path`** - Target database path which timestamp will be appended.
+
+return - **`Boolean`** type status indicates the success of operation.
+    
+The new appended node's key will be stored in Firebase Data object, 
+which its value can be accessed via function [FirebaseData object].pushName().
+
+```C++
+bool pushTimestamp(FirebaseData &dataObj, const String &path);
+```
+
+
+
+
+
 **Set integer data at the defined database path.**
 
-param *`dataObj`* - Firebase Data Object to hold data and instances.
+param **`dataObj`** - Firebase Data Object to hold data and instances.
 
-param *`path`* - Target database path which integer data will be set.
+param **`path`** - Target database path which integer data will be set.
 
-param *`intValue`* - Integer value to set.
+param **`intValue`** - Integer value to set.
 
-return *`Boolean`* type status indicates the success of operation.
+return **`Boolean`** type status indicates the success of operation.
 
 Call [FirebaseData object].dataType to determine what type of data that successfully
 stores in database. 
@@ -638,13 +657,13 @@ bool setInt(FirebaseData &dataObj, const String &path, int intValue);
 
 **Set float data at the defined database path.**
 
-param *`dataObj`* - Firebase Data Object to hold data and instances.
+param **`dataObj`** - Firebase Data Object to hold data and instances.
 
-param *`path`* - Target database path which float data will be set.
+param **`path`** - Target database path which float data will be set.
 
-param *`floatValue`* - Float value to set.
+param **`floatValue`** - Float value to set.
 
-return *`Boolean`* type status indicates the success of operation.
+return **`Boolean`** type status indicates the success of operation.
 
 Call [FirebaseData object].dataType to determine what type of data that successfully
 stores in database. 
@@ -662,13 +681,13 @@ bool setFloat(FirebaseData &dataObj, const String &path, float floatValue);
 
 **Set Boolean data at the defined database path.**
 
-param *`dataObj`* - Firebase Data Object to hold data and instances.
+param **`dataObj`** - Firebase Data Object to hold data and instances.
 
-param *`path`* - Target database path which float data will be set.
+param **`path`** - Target database path which float data will be set.
 
-param *`boolValue`* - Boolean value to set.
+param **`boolValue`** - Boolean value to set.
 
-return *`Boolean`* type status indicates the success of operation.
+return **`Boolean`** type status indicates the success of operation.
 
 Call [FirebaseData object].dataType to determine what type of data that successfully
 stores in database. 
@@ -686,13 +705,13 @@ bool setBool(FirebaseData &dataObj, const String &path, bool boolValue);
 
 **Set string (text) at the defined database path.**
 
-param *`dataObj`* - Firebase Data Object to hold data and instances.
+param **`dataObj`** - Firebase Data Object to hold data and instances.
 
-param *`path`* - Target database path which string data will be set.
+param **`path`** - Target database path which string data will be set.
 
-param *`stringValue`* - String or text to set.
+param **`stringValue`** - String or text to set.
 
-return *`Boolean`* type status indicates the success of operation.
+return **`Boolean`** type status indicates the success of operation.
 
 Call [FirebaseData object].dataType to determine what type of data that successfully
 stores in database. 
@@ -713,13 +732,13 @@ bool setString(FirebaseData &dataObj, const String &path, const String &stringVa
 This will replace any child nodes inside the defined path with node' s key
 and value defined in JSON data.
 
-param *`dataObj`* - Firebase Data Object to hold data and instances.
+param **`dataObj`** - Firebase Data Object to hold data and instances.
 
-param *`path`* - Target database path which key and value in JSON data will be replaced or set.
+param **`path`** - Target database path which key and value in JSON data will be replaced or set.
 
-param *`jsonString`* - The JSON string to set (should be valid JSON data).
+param **`jsonString`** - The JSON string to set (should be valid JSON data).
 
-return *`Boolean`* type status indicates the success of operation.
+return **`Boolean`** type status indicates the success of operation.
 
 Call [FirebaseData object].dataType to determine what type of data that successfully
 stores in database. 
@@ -737,15 +756,33 @@ bool setJSON(FirebaseData &dataObj, const String &path, const String &jsonString
 
 
 
+**Set Firebase server's timestamp to the defined database path**
+
+param **`dataObj`** - Firebase Data Object to hold data and instances.
+
+param **`path`** - Target database path which timestamp will be set.
+
+return - **`Boolean`** type status indicates the success of operation.
+    
+Call [FirebaseData object].intData will return the integer value of timestamp returned from server.
+
+```C++
+bool setTimestamp(FirebaseData &dataObj, const String &path);
+```
+
+
+
+
+
 **Update child nodes's key or exising key's value (using JSON data) under the defined database path.**
 
-param *`dataObj`* - Firebase Data Object to hold data and instances.
+param **`dataObj`** - Firebase Data Object to hold data and instances.
 
-param *`path`* - Target database path which key and value in JSON data will be update.
+param **`path`** - Target database path which key and value in JSON data will be update.
 
-param *`jsonString`* - The JSON string use for update.
+param **`jsonString`** - The JSON string use for update.
 
-return *`Boolean`* type status indicates the success of operation.
+return **`Boolean`** type status indicates the success of operation.
 
 Call [FirebaseData object].dataType to determine what type of data that successfully
 stores in database. 
@@ -765,13 +802,13 @@ bool updateNode(FirebaseData &dataObj, const String &path, const String &jsonStr
 
 **Update child nodes's key or exising key's value (using JSON data) under the defined database path.**
 
-param *`dataObj`* - Firebase Data Object to hold data and instances.
+param **`dataObj`** - Firebase Data Object to hold data and instances.
 
-param *`path`* - Target database path which key and value in JSON data will be update.
+param **`path`** - Target database path which key and value in JSON data will be update.
 
-param *`jsonString`* - The JSON string use for update.
+param **`jsonString`** - The JSON string use for update.
 
-return *`Boolean`* type status indicates the success of operation.
+return **`Boolean`** type status indicates the success of operation.
 
 Owing to the objective of this function to reduce the netwok data usage, 
 no payload will be returned from server.
@@ -786,11 +823,11 @@ bool updateNodeSilent(FirebaseData &dataObj, const String &path, const String &j
 
 **Read the integer value at the defined database path.**
 
-param *`dataObj`* - Firebase Data Object to hold data and instances.
+param **`dataObj`** - Firebase Data Object to hold data and instances.
 
-param *`path`* - Database path which the integer value is being read.
+param **`path`** - Database path which the integer value is being read.
 
-return *`Boolean`* type status indicates the success of operation.
+return **`Boolean`** type status indicates the success of operation.
 
 Call [FirebaseData object].dataType to determine what type of data that successfully
 stores in database. 
@@ -814,11 +851,11 @@ bool getInt(FirebaseData &dataObj, const String &path);
 
 **Read the float value at the defined database path.**
 
-param *`dataObj`* - Firebase Data Object to hold data and instances.
+param **`dataObj`** - Firebase Data Object to hold data and instances.
 
-param *`path`* - Database path which the float value is being read.
+param **`path`** - Database path which the float value is being read.
 
-return *`Boolean`* type status indicates the success of operation.
+return **`Boolean`** type status indicates the success of operation.
 
 Call [FirebaseData object].dataType to determine what type of data that successfully
 stores in database. 
@@ -839,11 +876,11 @@ bool getFloat(FirebaseData &dataObj, const String &path);
 
 **Read the Boolean value at the defined database path.**
 
-param *`dataObj`* - Firebase Data Object to hold data and instances.
+param **`dataObj`** - Firebase Data Object to hold data and instances.
 
-param *`path`* - Database path which the Boolean value is being read.
+param **`path`** - Database path which the Boolean value is being read.
 
-return *`Boolean`* type status indicates the success of operation.
+return **`Boolean`** type status indicates the success of operation.
 
 Call [FirebaseData object].dataType to determine what type of data that successfully
 stores in database. 
@@ -865,11 +902,11 @@ bool getBool(FirebaseData &dataObj, const String &path);
 
 **Read the string or text at the defined database path.**
 
-param *`dataObj`* - Firebase Data Object to hold data and instances.
+param **`dataObj`** - Firebase Data Object to hold data and instances.
 
-param *`path`* - Database path which the string value is being read.
+param **`path`** - Database path which the string value is being read.
 
-return *`Boolean`* type status indicates the success of operation.
+return **`Boolean`** type status indicates the success of operation.
 
 Call [FirebaseData object].dataType to determine what type of data that successfully
 stores in database. 
@@ -892,11 +929,11 @@ bool getString(FirebaseData &dataObj, const String &path);
 
 The returned payload JSON string represents the child nodes and their value.
 
-param *`dataObj`* - Firebase Data Object to hold data and instances.
+param **`dataObj`** - Firebase Data Object to hold data and instances.
 
-param *`path`* - Database path which the string value is being read.
+param **`path`** - Database path which the string value is being read.
 
-return *`Boolean`* type status indicates the success of operation.
+return **`Boolean`** type status indicates the success of operation.
 
 Call [FirebaseData object].dataType to determine what type of data that successfully
 stores in database. 
@@ -919,17 +956,17 @@ bool getJSON(FirebaseData &dataObj, const String &path);
 
 The returned payload JSON string represents the child nodes and their value.
 
-param *`dataObj`* - Firebase Data Object to hold data and instances.
+param **`dataObj`** - Firebase Data Object to hold data and instances.
 
-param *`path`* - Database path which the string value is being read.
+param **`path`** - Database path which the string value is being read.
 
-param *`query`* - QueryFilter class to set query parameters to filter data.
+param **`query`** - QueryFilter class to set query parameters to filter data.
 
-return *`Boolean`* type status indicates the success of operation.
+return **`Boolean`** type status indicates the success of operation.
 
 Available query parameters for filtering the data are the following.
 
-*`QueryFilter.orderBy`* - Required parameter to specify which data used for data filtering included child key, key and value.
+**`QueryFilter.orderBy`** - Required parameter to specify which data used for data filtering included child key, key and value.
 
 Use "$key" for filtering data by keys of all nodes at the defined database path.
 
@@ -940,15 +977,15 @@ Use "$priority" for filtering data by "virtual child" named .priority of all nod
 Use any child key to filter by that key.
 
 
-*`QueryFilter.limitToFirst`* -  The total children (number) to filter from the first child.
+**`QueryFilter.limitToFirst`** -  The total children (number) to filter from the first child.
 
-*`QueryFilter.limitToLast`* -   The total last children (number) to filter. 
+**`QueryFilter.limitToLast`** -   The total last children (number) to filter. 
 
-*`QueryFilter.startAt`* -       Starting value of range (number or string) of query upon orderBy param.
+**`QueryFilter.startAt`** -       Starting value of range (number or string) of query upon orderBy param.
 
-*`QueryFilter.endAt`* -         Ending value of range (number or string) of query upon orderBy param.
+**`QueryFilter.endAt`** -         Ending value of range (number or string) of query upon orderBy param.
 
-*`QueryFilter.equalTo`* -       Value (number or string) matches the orderBy param
+**`QueryFilter.equalTo`** -       Value (number or string) matches the orderBy param
 
 
 Call [FirebaseData object].dataType to determine what type of data that successfully
@@ -973,11 +1010,11 @@ bool getJSON(FirebaseData &dataObj, const String &path, QueryFilter &quer);
 
 **Delete all child nodes at the defined database path.**
 
-param *`dataObj`* - Firebase Data Object to hold data and instances.
+param **`dataObj`** - Firebase Data Object to hold data and instances.
 
-param *`path`* - Database path to be deleted.
+param **`path`** - Database path to be deleted.
 
-return *`Boolean`* type status indicates the success of operation.*
+return **`Boolean`** type status indicates the success of operation.*
 
 ```C++
 bool deleteNode(FirebaseData &dataObj, const String &path);
@@ -989,11 +1026,11 @@ bool deleteNode(FirebaseData &dataObj, const String &path);
 
 **Start monitoring the value changes at the defined path and its children.**
 
-param *`dataObj`* - Firebase Data Object to hold data and instances.
+param **`dataObj`** - Firebase Data Object to hold data and instances.
 
-param *`path`* - Database path being monitor.
+param **`path`** - Database path being monitor.
 
-return *`Boolean`* type status indicates the success of operation.*
+return **`Boolean`** type status indicates the success of operation.*
 
 ```C++
 bool beginStream(FirebaseData &dataObj, const String &path);
@@ -1008,9 +1045,9 @@ bool beginStream(FirebaseData &dataObj, const String &path);
 Once beginStream was called e.g. in setup(), the readStream function
 should call inside the loop function.
 
-param *`dataObj`* - Firebase Data Object to hold data and instances.
+param **`dataObj`** - Firebase Data Object to hold data and instances.
 
-return *`Boolean`* type status indicates the success of operation.
+return **`Boolean`** type status indicates the success of operation.
 
 Using the same Firebase Data object for stream read/monitoring associated 
 with read, store, update, delete will break or quit the current stream connection. 
@@ -1029,9 +1066,9 @@ bool readStream(FirebaseData &dataObj);
 
 Can be restart again by calling beginStream.
 
-param *`dataObj`* - Firebase Data Object to hold data and instances.
+param **`dataObj`** - Firebase Data Object to hold data and instances.
 
-return *`Boolean`* type status indicates the success of operation.
+return **`Boolean`** type status indicates the success of operation.
  
 ```C++
 bool endStream(FirebaseData &dataObj);
@@ -1048,7 +1085,7 @@ bool endStream(FirebaseData &dataObj);
 **Get WiFi client instance.**
 
 
-return *`WiFi client instance`*.
+return **`WiFi client instance`**.
 
 ```C++
 WiFiSSLClient getWiFiClient();
@@ -1060,9 +1097,9 @@ WiFiSSLClient getWiFiClient();
 
 **Pause/Unpause WiFiClient from all Firebase operations.**
 
-param *`pause`* True for pause and False for unpause.
+param **`pause`** True for pause and False for unpause.
 
-return *`Boolean`* type status indicates the success of operation.
+return **`Boolean`** type status indicates the success of operation.
 
 ```C++
 bool pauseFirebase(bool pause);
@@ -1210,7 +1247,7 @@ String jsonData();
 
 **Return the new appended node's name or key of server returned payload when calling pushXXX function.**
 
-return *`String`* (String object).
+return **`String`** (String object).
 
 ```C++
 String pushName();
@@ -1222,7 +1259,7 @@ String pushName();
 
 **Determine the stream connection status.**
 
-return *`Boolean`* type status indicates whether the Firebase Data object is working with stream or not.
+return **`Boolean`** type status indicates whether the Firebase Data object is working with stream or not.
 
 ```C++
 bool isStream();
@@ -1234,7 +1271,7 @@ bool isStream();
 
 **Determine the server connection status.**
 
-return *`Boolean`* type status indicates whether the Firebase Data object is connected to server or not.
+return **`Boolean`** type status indicates whether the Firebase Data object is connected to server or not.
 
 ```C++
 bool httpConnected();
@@ -1248,7 +1285,7 @@ bool httpConnected();
 
 Nothing to do when stream connection timeout, the stream connection will be automatic resumed.
 
-return *`Boolean`* type status indicates whether the stream was timeout or not.
+return **`Boolean`** type status indicates whether the stream was timeout or not.
 
 ```C++
 bool streamTimeout();
@@ -1260,7 +1297,7 @@ bool streamTimeout();
 
 **Determine the availability of data or paylaod returned from server.**
 
-return *`Boolean`* type status indicates whether the server return back the new payload or not.
+return **`Boolean`** type status indicates whether the server return back the new payload or not.
 
 ```C++
 bool dataAvailable();
@@ -1272,7 +1309,7 @@ bool dataAvailable();
 
 **Determine the availability of stream event-data paylaod returned from server.**
 
-return *`Boolean`* type status indicates whether the server return back the stream event-data 
+return **`Boolean`** type status indicates whether the server return back the stream event-data 
 payload or not.
 
 ```C++
@@ -1285,7 +1322,7 @@ bool streamAvailable();
 
 **Determine the matching between data type that intend to get from/store to database and the server's return payload data type.**
 
-return *`Boolean`* type status indicates whether the type of data being get from/store to database 
+return **`Boolean`** type status indicates whether the type of data being get from/store to database 
 and server's returned payload are matched or not.
 
 ```C++
@@ -1298,7 +1335,7 @@ bool mismatchDataType();
 
 **Determine the http status code return from server.**
 
-return *`Integer`* number of HTTP status.
+return **`Integer`** number of HTTP status.
 
 ```C++
 int httpCode();
@@ -1310,7 +1347,7 @@ int httpCode();
 
 **Check overflow of the returned payload data buffer.**
 
-return *`Boolean`* of the overflow status.
+return **`Boolean`** of the overflow status.
 
 
 Default buffer size is 400 bytes, assigned via FIREBASE_RESPONSE_SIZE macro in FirebaseESP8266.h
