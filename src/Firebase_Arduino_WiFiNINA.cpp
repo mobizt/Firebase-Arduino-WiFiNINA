@@ -1,18 +1,17 @@
 /*
-* Google's Firebase Realtime Database Arduino Library for ARM/AVR WIFI Development Boards based on WiFiNINA library, version 1.0.3
+* Google's Firebase Realtime Database Arduino Library for ARM/AVR WIFI Development Boards based on WiFiNINA library, version 1.0.4
 * 
 *
 * This library required WiFiNINA Library to be installed.
 * https://github.com/arduino-libraries/WiFiNINA
 * 
-* April 30, 2019
+* June 6, 2019
 * 
 * Feature Added:
-* - Add keywords
+* - Set and push timestamp
 * 
 * Feature Fixed:
 * 
-*
 * This library provides ARM/AVR WIFI Development Boards to perform REST API by GET PUT, POST, PATCH, DELETE data from/to with Google's Firebase database using get, set, update
 * and delete calls.
 * 
@@ -53,6 +52,7 @@ struct Firebase_Arduino_WiFiNINA::FirebaseDataType
   static const uint8_t BOOLEAN = 4;
   static const uint8_t STRING = 5;
   static const uint8_t JSON = 6;
+  static const uint8_t TIMESTAMP = 10;
 };
 
 struct Firebase_Arduino_WiFiNINA::FirebaseMethod
@@ -132,6 +132,16 @@ bool Firebase_Arduino_WiFiNINA::pushJSON(FirebaseData &dataObj, const String &pa
   return sendRequest(dataObj, path.c_str(), FirebaseMethod::POST, FirebaseDataType::JSON, jsonString.c_str());
 }
 
+bool Firebase_Arduino_WiFiNINA::pushTimestamp(FirebaseData &dataObj, const String &path)
+{
+  char *tmp = new char[60];
+  strCopy_T(tmp, 113, true);
+
+  bool flag = buildRequest(dataObj, path.c_str(), FirebaseMethod::POST, FirebaseDataType::TIMESTAMP, tmp);
+  delete[] tmp;
+  return flag;
+}
+
 bool Firebase_Arduino_WiFiNINA::setInt(FirebaseData &dataObj, const String &path, int intValue)
 {
   char *buf = new char[50];
@@ -178,6 +188,16 @@ bool Firebase_Arduino_WiFiNINA::setJSON(FirebaseData &dataObj, const String &pat
 {
   dataObj.queryFilter.clearQuery();
   return sendRequest(dataObj, path.c_str(), FirebaseMethod::PUT, FirebaseDataType::JSON, jsonString.c_str());
+}
+
+bool Firebase_Arduino_WiFiNINA::setTimestamp(FirebaseData &dataObj, const String &path)
+{
+  char *tmp = new char[60];
+  strCopy_T(tmp, 113, true);
+
+  bool flag = buildRequest(dataObj, path.c_str(), FirebaseMethod::PUT, FirebaseDataType::TIMESTAMP, tmp);
+  delete[] tmp;
+  return flag;
 }
 
 bool Firebase_Arduino_WiFiNINA::updateNode(FirebaseData &dataObj, const String path, const String jsonString)

@@ -1,18 +1,17 @@
 /*
-* Google's Firebase Realtime Database Arduino Library for ARM/AVR WIFI Development Boards based on WiFiNINA library, version 1.0.3
+* Google's Firebase Realtime Database Arduino Library for ARM/AVR WIFI Development Boards based on WiFiNINA library, version 1.0.4
 * 
 *
 * This library required WiFiNINA Library to be installed.
 * https://github.com/arduino-libraries/WiFiNINA
 * 
-* April 30, 2019
+* June 6, 2019
 * 
 * Feature Added:
-* - Add keywords
+* - Set and push timestamp
 * 
 * Feature Fixed:
 * 
-*
 * This library provides ARM/AVR WIFI Development Boards to perform REST API by GET PUT, POST, PATCH, DELETE data from/to with Google's Firebase database using get, set, update
 * and delete calls.
 * 
@@ -180,33 +179,33 @@ const char C_STR_109[] PROGMEM = "cancel";
 const char C_STR_110[] PROGMEM = "auth_revoked";
 const char C_STR_111[] PROGMEM = "http://";
 const char C_STR_112[] PROGMEM = "https://";
+const char C_STR_113[] PROGMEM = "{\".sv\": \"timestamp\"}";
 
 const char *const string_table[] PROGMEM = {
-  C_STR_0,
-  C_STR_1, C_STR_2, C_STR_3, C_STR_4, C_STR_5,
-  C_STR_6, C_STR_7, C_STR_8, C_STR_9, C_STR_10,
-  C_STR_11, C_STR_12, C_STR_13, C_STR_14, C_STR_15,
-  C_STR_16, C_STR_17, C_STR_18, C_STR_19, C_STR_20,
-  C_STR_21, C_STR_22, C_STR_23, C_STR_24, C_STR_25,
-  C_STR_26, C_STR_27, C_STR_28, C_STR_29, C_STR_30,
-  C_STR_31, C_STR_32, C_STR_33, C_STR_34, C_STR_35,
-  C_STR_36, C_STR_37, C_STR_38, C_STR_39, C_STR_40,
-  C_STR_41, C_STR_42, C_STR_43, C_STR_44, C_STR_45,
-  C_STR_46, C_STR_47, C_STR_48, C_STR_49, C_STR_50,
-  C_STR_51, C_STR_52, C_STR_53, C_STR_54, C_STR_55,
-  C_STR_56, C_STR_57, C_STR_58, C_STR_59, C_STR_60,
-  C_STR_61, C_STR_62, C_STR_63, C_STR_64, C_STR_65,
-  C_STR_66, C_STR_67, C_STR_68, C_STR_69, C_STR_70,
-  C_STR_71, C_STR_72, C_STR_73, C_STR_74, C_STR_75,
-  C_STR_76, C_STR_77, C_STR_78, C_STR_79, C_STR_80,
-  C_STR_81, C_STR_82, C_STR_83, C_STR_84, C_STR_85,
-  C_STR_86, C_STR_87, C_STR_88, C_STR_89, C_STR_90,
-  C_STR_91, C_STR_92, C_STR_93, C_STR_94, C_STR_95,
-  C_STR_96, C_STR_97, C_STR_98, C_STR_99, C_STR_100,
-  C_STR_101, C_STR_102, C_STR_103, C_STR_104, C_STR_105,
-  C_STR_106, C_STR_107, C_STR_108, C_STR_109, C_STR_110,
-  C_STR_111, C_STR_112
-};
+    C_STR_0,
+    C_STR_1, C_STR_2, C_STR_3, C_STR_4, C_STR_5,
+    C_STR_6, C_STR_7, C_STR_8, C_STR_9, C_STR_10,
+    C_STR_11, C_STR_12, C_STR_13, C_STR_14, C_STR_15,
+    C_STR_16, C_STR_17, C_STR_18, C_STR_19, C_STR_20,
+    C_STR_21, C_STR_22, C_STR_23, C_STR_24, C_STR_25,
+    C_STR_26, C_STR_27, C_STR_28, C_STR_29, C_STR_30,
+    C_STR_31, C_STR_32, C_STR_33, C_STR_34, C_STR_35,
+    C_STR_36, C_STR_37, C_STR_38, C_STR_39, C_STR_40,
+    C_STR_41, C_STR_42, C_STR_43, C_STR_44, C_STR_45,
+    C_STR_46, C_STR_47, C_STR_48, C_STR_49, C_STR_50,
+    C_STR_51, C_STR_52, C_STR_53, C_STR_54, C_STR_55,
+    C_STR_56, C_STR_57, C_STR_58, C_STR_59, C_STR_60,
+    C_STR_61, C_STR_62, C_STR_63, C_STR_64, C_STR_65,
+    C_STR_66, C_STR_67, C_STR_68, C_STR_69, C_STR_70,
+    C_STR_71, C_STR_72, C_STR_73, C_STR_74, C_STR_75,
+    C_STR_76, C_STR_77, C_STR_78, C_STR_79, C_STR_80,
+    C_STR_81, C_STR_82, C_STR_83, C_STR_84, C_STR_85,
+    C_STR_86, C_STR_87, C_STR_88, C_STR_89, C_STR_90,
+    C_STR_91, C_STR_92, C_STR_93, C_STR_94, C_STR_95,
+    C_STR_96, C_STR_97, C_STR_98, C_STR_99, C_STR_100,
+    C_STR_101, C_STR_102, C_STR_103, C_STR_104, C_STR_105,
+    C_STR_106, C_STR_107, C_STR_108, C_STR_109, C_STR_110,
+    C_STR_111, C_STR_112, C_STR_113};
 
 #define FBDATA_PATH_LENGTH 200
 #define FBDATA_PATH2_LENGTH 200
@@ -375,6 +374,20 @@ class Firebase_Arduino_WiFiNINA
     bool pushJSON(FirebaseData &dataObj, const String &path, const String &jsonString);
 
     /*
+        Append new Firebase server's timestamp to the defined database path.
+
+        @param dataObj - Firebase Data Object to hold data and instances.
+        @param path - Target database path which timestamp will be appended.
+
+        @return - Boolean type status indicates the success of operation.
+    
+        The new appended node's key will be stored in Firebase Data object, 
+        which its value can be accessed via function [FirebaseData object].pushName().
+
+   */
+    bool pushTimestamp(FirebaseData &dataObj, const String &path);
+
+    /*
         Set integer data at the defined database path.
 
         @param dataObj - Firebase Data Object to hold data and instances.
@@ -467,6 +480,21 @@ class Firebase_Arduino_WiFiNINA
 
     */
     bool setJSON(FirebaseData &dataObj, const String &path, const String &jsonString);
+
+    /*
+       Set Firebase server's timestamp to the defined database path.
+
+       @param dataObj - Firebase Data Object to hold data and instances.
+       @param path - Target database path which timestamp will be set.
+
+       @return - Boolean type status indicates the success of operation.
+
+       Call [FirebaseData object].intData will return the integer value of
+       timestamp returned from server.
+
+   */
+
+    bool setTimestamp(FirebaseData &dataObj, const String &path);
 
     /*
         Update child nodes's key or exising key's value (using JSON data) under the defined database path.
