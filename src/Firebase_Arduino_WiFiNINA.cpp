@@ -12,6 +12,7 @@
 * 
 * Feature Fixed:
 * 
+*
 * This library provides ARM/AVR WIFI Development Boards to perform REST API by GET PUT, POST, PATCH, DELETE data from/to with Google's Firebase database using get, set, update
 * and delete calls.
 * 
