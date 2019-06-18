@@ -1360,15 +1360,6 @@ bool bufferOverflow();
 
 
 
-**Release memory used by Firebase Data object.**
-
-```C++
-void end();
-```
-
-
-
-
 
 **Return the server's payload data.**
 
