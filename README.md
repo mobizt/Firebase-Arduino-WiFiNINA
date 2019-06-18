@@ -764,7 +764,7 @@ param **`path`** - Target database path which timestamp will be set.
 
 return - **`Boolean`** type status indicates the success of operation.
     
-Call [FirebaseData object].intData will return the integer value of timestamp returned from server.
+Call [FirebaseData object].payload will return the timestamp (string) returned from server.
 
 ```C++
 bool setTimestamp(FirebaseData &dataObj, const String &path);
