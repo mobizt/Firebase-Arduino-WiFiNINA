@@ -1,14 +1,14 @@
 /*
-* Google's Firebase Realtime Database Arduino Library for ARM/AVR WIFI Development Boards based on WiFiNINA library, version 1.0.5
+* Google's Firebase Realtime Database Arduino Library for ARM/AVR WIFI Development Boards based on WiFiNINA library, version 1.0.6
 * 
 *
 * This library required WiFiNINA Library to be installed.
 * https://github.com/arduino-libraries/WiFiNINA
 * 
-* June 6, 2019
+* June 18, 2019
 * 
 * Feature Added:
-* - Set and push timestamp
+* 
 * 
 * Feature Fixed:
 * 
@@ -1714,9 +1714,15 @@ bool FirebaseData::mismatchDataType()
 {
   return _mismatchDataType;
 }
+
 bool FirebaseData::bufferOverflow()
 {
   return _bufferOverflow;
+}
+
+String FirebaseData::payload()
+{
+  return _data;
 }
 
 String FirebaseData::errorReason()
