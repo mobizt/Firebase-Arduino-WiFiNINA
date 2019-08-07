@@ -1,11 +1,11 @@
 /*
-* Google's Firebase Realtime Database Arduino Library for ARM/AVR WIFI Development Boards based on WiFiNINA library, version 1.0.6
+* Google's Firebase Realtime Database Arduino Library for ARM/AVR WIFI Development Boards based on WiFiNINA library, version 1.0.7
 * 
 *
 * This library required WiFiNINA Library to be installed.
 * https://github.com/arduino-libraries/WiFiNINA
 * 
-* June 18, 2019
+* August 7, 2019
 * 
 * Feature Added:
 * 
@@ -982,6 +982,8 @@ class FirebaseData
     */
     String payload();
 
+    
+
     QueryFilter queryFilter;
 
   protected:
@@ -1028,6 +1030,8 @@ class FirebaseData
     FirebaseHTTPClient _http;
 
     void strCopy_T(char *buf, uint16_t index, bool empty = false, uint16_t size = 0);
+
+    void end();
 
     friend Firebase_Arduino_WiFiNINA;
 };
