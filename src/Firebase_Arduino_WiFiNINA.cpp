@@ -43,8 +43,6 @@
 #ifndef Firebase_Arduino_WiFiNINA_CPP
 #define Firebase_Arduino_WiFiNINA_CPP
 
-#include "Arduino.h"
-
 #include "Firebase_Arduino_WiFiNINA.h"
 
 struct Firebase_Arduino_WiFiNINA::FirebaseDataType

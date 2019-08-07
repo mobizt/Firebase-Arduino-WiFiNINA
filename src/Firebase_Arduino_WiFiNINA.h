@@ -43,7 +43,7 @@
 #ifndef Firebase_Arduino_WiFiNINA_H
 #define Firebase_Arduino_WiFiNINA_H
 
-#include "Arduino.h"
+#include <Arduino.h>
 
 #include "Firebase_Arduino_WiFiNINA_HTTPClient.h"
 
@@ -783,10 +783,6 @@ class FirebaseData
 
         @return - Boolean type status indicates the success of operation.
 
-    */
-    void end();
-    /*
-        Release memory used by FirebaseData object
     */
     bool pauseFirebase(bool pause);
 
