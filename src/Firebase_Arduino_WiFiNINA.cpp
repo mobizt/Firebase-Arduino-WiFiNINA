@@ -1,16 +1,16 @@
 /*
-* Google's Firebase Realtime Database Arduino Library for ARM/AVR WIFI Dev Boards based on WiFiNINA library, version 1.0.9
+* Google's Firebase Realtime Database Arduino Library for ARM/AVR WIFI Dev Boards based on WiFiNINA library, version 1.1.0
 * 
 *
 * This library required WiFiNINA Library to be installed.
 * https://github.com/arduino-libraries/WiFiNINA
 * 
-* August 12, 2019
+* December 20, 2019
 * 
 * Feature Added:
 * 
 * Feature Fixed:
-* - Stream error.
+* - Fix empty data when none POST payload contains name key.
 *
 * This library provides ARM/AVR WIFI Development Boards to perform REST API by GET PUT, POST, PATCH, DELETE data from/to with Google's Firebase database using get, set, update
 * and delete calls.
@@ -72,10 +72,10 @@ Firebase_Arduino_WiFiNINA::~Firebase_Arduino_WiFiNINA() {}
 
 void Firebase_Arduino_WiFiNINA::begin(const String &host, const String &auth, const String &wifiSSID, const String &wifiPSW)
 {
-  strCopy(_host, (char*)host.c_str(), true, FB_HOST_LENGTH);
-  strCopy(_auth, (char*)auth.c_str(), true, FB_AUTH_LENGTH);
-  strCopy(_ssid, (char*)wifiSSID.c_str(), true, FB_SSID_LENGTH);
-  strCopy(_psw, (char*)wifiPSW.c_str(), true, FB_PSW_LENGTH);
+  strCopy(_host, (char *)host.c_str(), true, FB_HOST_LENGTH);
+  strCopy(_auth, (char *)auth.c_str(), true, FB_AUTH_LENGTH);
+  strCopy(_ssid, (char *)wifiSSID.c_str(), true, FB_SSID_LENGTH);
+  strCopy(_psw, (char *)wifiPSW.c_str(), true, FB_PSW_LENGTH);
   _port = FIEBASE_PORT;
 }
 
@@ -83,7 +83,6 @@ void Firebase_Arduino_WiFiNINA::reconnectWiFi(bool reconnect)
 {
   _reconnectWiFi = reconnect;
 }
-
 
 bool Firebase_Arduino_WiFiNINA::pushInt(FirebaseData &dataObj, const String &path, int intValue)
 {
@@ -381,7 +380,6 @@ int Firebase_Arduino_WiFiNINA::firebaseConnect(FirebaseData &dataObj, const char
     dataObj._isStreamTimeout = false;
   }
 
-
   httpConnected = dataObj._http.http_begin(_host, _port);
 
   if (!httpConnected)
@@ -389,8 +387,6 @@ int Firebase_Arduino_WiFiNINA::firebaseConnect(FirebaseData &dataObj, const char
     dataObj._httpCode = HTTPC_ERROR_CONNECTION_REFUSED;
     goto EXIT_1;
   }
-  
-    
 
   //Prepare for string and JSON payloads
   if (method != FirebaseMethod::GET && method != FirebaseMethod::STREAM &&
@@ -403,7 +399,6 @@ int Firebase_Arduino_WiFiNINA::firebaseConnect(FirebaseData &dataObj, const char
     if (dataType == FirebaseDataType::STRING)
       strCopy_T(payloadStr, 3);
   }
-  
 
   //Prepare request header
 
@@ -486,7 +481,7 @@ bool Firebase_Arduino_WiFiNINA::sendRequest(FirebaseData &dataObj, const char *p
           delay(20);
           forceEndHTTP(dataObj);
           if (dataObj._http.http_connected())
-            if(!dataObj._isStream)
+            if (!dataObj._isStream)
               return false;
         }
         dataObj._httpConnected = false;
@@ -519,7 +514,7 @@ bool Firebase_Arduino_WiFiNINA::sendRequest(FirebaseData &dataObj, const char *p
     }
     else
     {
-      strCopy(dataObj._path, (char*)path, true, FBDATA_PATH_LENGTH);
+      strCopy(dataObj._path, (char *)path, true, FBDATA_PATH_LENGTH);
       flag = getServerResponse(dataObj);
       dataObj._dataAvailable = strlen(dataObj._data) > 0;
     }
@@ -601,7 +596,6 @@ bool Firebase_Arduino_WiFiNINA::getServerResponse(FirebaseData &dataObj)
       delay(1);
 
   dataTime = millis();
-
 
   if (client.connected() && client.available())
   {
@@ -754,7 +748,6 @@ bool Firebase_Arduino_WiFiNINA::getServerResponse(FirebaseData &dataObj)
           }
         }
 
-
         if (!hasEventData || !hasEvent)
           memset(lineBuf, 0, FIREBASE_RESPONSE_SIZE);
 
@@ -877,20 +870,23 @@ bool Firebase_Arduino_WiFiNINA::getServerResponse(FirebaseData &dataObj)
         setDataType(dataObj, lineBuf);
 
         //Push (POST) data?
-        strCopy_T(fstr, 20, true, 60);
-        p1 = strpos(lineBuf, fstr, 0);
-        if (p1 != -1)
+        if (dataObj._r_method == FirebaseMethod::POST)
         {
-          strCopy_T(fstr, 3, true, 60);
-          p2 = strpos(lineBuf, fstr, p1 + strlen_P(C_STR_20));
-          if (p2 != -1)
+          strCopy_T(fstr, 20, true, 60);
+          p1 = strpos(lineBuf, fstr, 0);
+          if (p1 != -1)
           {
-            memset(tmp, 0, tempBufSize);
-            strncpy(tmp, lineBuf + p1 + strlen_P(C_STR_20), p2 - p1 - strlen_P(C_STR_20));
-            strCopy(dataObj._pushName, tmp, true, FBDATA_PUSH_NAME_LENGTH);
-            dataObj._dataType = -1;
-            dataObj._dataType2 = -1;
-            memset(dataObj._data, 0, FBDATA_DATA_LENGTH);
+            strCopy_T(fstr, 3, true, 60);
+            p2 = strpos(lineBuf, fstr, p1 + strlen_P(C_STR_20));
+            if (p2 != -1)
+            {
+              memset(tmp, 0, tempBufSize);
+              strncpy(tmp, lineBuf + p1 + strlen_P(C_STR_20), p2 - p1 - strlen_P(C_STR_20));
+              strCopy(dataObj._pushName, tmp, true, FBDATA_PUSH_NAME_LENGTH);
+              dataObj._dataType = 0;
+              dataObj._dataType2 = 0;
+              memset(dataObj._data, 0, FBDATA_DATA_LENGTH);
+            }
           }
         }
       }
@@ -905,8 +901,8 @@ bool Firebase_Arduino_WiFiNINA::getServerResponse(FirebaseData &dataObj)
           memset(dataObj._path, 0, FBDATA_PATH_LENGTH);
           memset(dataObj._data, 0, FBDATA_DATA_LENGTH);
           memset(dataObj._pushName, 0, FBDATA_PUSH_NAME_LENGTH);
-          dataObj._dataType = -1;
-          dataObj._dataType2 = -1;
+          dataObj._dataType = 0;
+          dataObj._dataType2 = 0;
           dataObj._dataAvailable = false;
         }
       }
@@ -1105,7 +1101,6 @@ void Firebase_Arduino_WiFiNINA::sendFirebaseRequest(FirebaseData &dataObj, const
   uint16_t headerSize = 400;
   char *request = new char[headerSize];
   memset(request, 0, headerSize);
- 
 
   uint16_t numBufSize = 50;
 
@@ -1141,11 +1136,10 @@ void Firebase_Arduino_WiFiNINA::sendFirebaseRequest(FirebaseData &dataObj, const
   retryCount = 0;
   while (dataObj._http.http_sendRequest(request, "") != 0)
   {
-      retryCount++;
-      if (retryCount > maxRetry)
-          break;
+    retryCount++;
+    if (retryCount > maxRetry)
+      break;
   }
-
 
   if (strlen(path) > 0)
   {
@@ -1351,110 +1345,110 @@ void Firebase_Arduino_WiFiNINA::errorToString(int httpCode, char *buf)
 {
   switch (httpCode)
   {
-    case HTTPC_ERROR_CONNECTION_REFUSED:
-      strCopy_T(buf, 39, true, sizeof(buf));
-      return;
-    case HTTPC_ERROR_SEND_HEADER_FAILED:
-      strCopy_T(buf, 40, true, sizeof(buf));
-      return;
-    case HTTPC_ERROR_SEND_PAYLOAD_FAILED:
-      strCopy_T(buf, 41, true, sizeof(buf));
-      return;
-    case HTTPC_ERROR_NOT_CONNECTED:
-      strCopy_T(buf, 42, true, sizeof(buf));
-      return;
-    case HTTPC_ERROR_CONNECTION_LOST:
-      strCopy_T(buf, 43, true, sizeof(buf));
-      return;
-    case HTTPC_ERROR_NO_HTTP_SERVER:
-      strCopy_T(buf, 44, true, sizeof(buf));
-      return;
-    case _HTTP_CODE_BAD_REQUEST:
-      strCopy_T(buf, 45, true, sizeof(buf));
-      return;
-    case _HTTP_CODE_NON_AUTHORITATIVE_INFORMATION:
-      strCopy_T(buf, 46, true, sizeof(buf));
-      return;
-    case _HTTP_CODE_NO_CONTENT:
-      strCopy_T(buf, 47, true, sizeof(buf));
-      return;
-    case _HTTP_CODE_MOVED_PERMANENTLY:
-      strCopy_T(buf, 48, true, sizeof(buf));
-      return;
-    case _HTTP_CODE_USE_PROXY:
-      strCopy_T(buf, 49, true, sizeof(buf));
-      return;
-    case _HTTP_CODE_TEMPORARY_REDIRECT:
-      strCopy_T(buf, 50, true, sizeof(buf));
-      return;
-    case _HTTP_CODE_PERMANENT_REDIRECT:
-      strCopy_T(buf, 51, true, sizeof(buf));
-      return;
-    case _HTTP_CODE_UNAUTHORIZED:
-      strCopy_T(buf, 52, true, sizeof(buf));
-      return;
-    case _HTTP_CODE_FORBIDDEN:
-      strCopy_T(buf, 53, true, sizeof(buf));
-      return;
-    case _HTTP_CODE_NOT_FOUND:
-      strCopy_T(buf, 54, true, sizeof(buf));
-      return;
-    case _HTTP_CODE_METHOD_NOT_ALLOWED:
-      strCopy_T(buf, 55, true, sizeof(buf));
-      return;
-    case _HTTP_CODE_NOT_ACCEPTABLE:
-      strCopy_T(buf, 56, true, sizeof(buf));
-      return;
-    case _HTTP_CODE_PROXY_AUTHENTICATION_REQUIRED:
-      strCopy_T(buf, 57, true, sizeof(buf));
-      return;
-    case _HTTP_CODE_REQUEST_TIMEOUT:
-      strCopy_T(buf, 58, true, sizeof(buf));
-      return;
-    case _HTTP_CODE_LENGTH_REQUIRED:
-      strCopy_T(buf, 59, true, sizeof(buf));
-      return;
-    case _HTTP_CODE_TOO_MANY_REQUESTS:
-      strCopy_T(buf, 60, true, sizeof(buf));
-      return;
-    case _HTTP_CODE_REQUEST_HEADER_FIELDS_TOO_LARGE:
-      strCopy_T(buf, 61, true, sizeof(buf));
-      return;
-    case _HTTP_CODE_INTERNAL_SERVER_ERROR:
-      strCopy_T(buf, 62, true, sizeof(buf));
-      return;
-    case _HTTP_CODE_BAD_GATEWAY:
-      strCopy_T(buf, 63, true, sizeof(buf));
-      return;
-    case _HTTP_CODE_SERVICE_UNAVAILABLE:
-      strCopy_T(buf, 64, true, sizeof(buf));
-      return;
-    case _HTTP_CODE_GATEWAY_TIMEOUT:
-      strCopy_T(buf, 65, true, sizeof(buf));
-      return;
-    case _HTTP_CODE_HTTP_VERSION_NOT_SUPPORTED:
-      strCopy_T(buf, 66, true, sizeof(buf));
-      return;
-    case _HTTP_CODE_NETWORK_AUTHENTICATION_REQUIRED:
-      strCopy_T(buf, 67, true, sizeof(buf));
-      return;
-    case HTTPC_ERROR_READ_TIMEOUT:
-      strCopy_T(buf, 68, true, sizeof(buf));
-      return;
-    case FIREBASE_ERROR_DATA_TYPE_MISMATCH:
-      strCopy_T(buf, 69, true, sizeof(buf));
-      return;
-    case FIREBASE_ERROR_PATH_NOT_EXIST:
-      strCopy_T(buf, 71, true, sizeof(buf));
-      return;
-    case HTTPC_ERROR_CONNECTION_INUSED:
-      strCopy_T(buf, 94, true, sizeof(buf));
-      return;
-    case FIREBASE_ERROR_BUFFER_OVERFLOW:
-      strCopy_T(buf, 68, true, sizeof(buf));
-      return;
-    default:
-      return;
+  case HTTPC_ERROR_CONNECTION_REFUSED:
+    strCopy_T(buf, 39, true, sizeof(buf));
+    return;
+  case HTTPC_ERROR_SEND_HEADER_FAILED:
+    strCopy_T(buf, 40, true, sizeof(buf));
+    return;
+  case HTTPC_ERROR_SEND_PAYLOAD_FAILED:
+    strCopy_T(buf, 41, true, sizeof(buf));
+    return;
+  case HTTPC_ERROR_NOT_CONNECTED:
+    strCopy_T(buf, 42, true, sizeof(buf));
+    return;
+  case HTTPC_ERROR_CONNECTION_LOST:
+    strCopy_T(buf, 43, true, sizeof(buf));
+    return;
+  case HTTPC_ERROR_NO_HTTP_SERVER:
+    strCopy_T(buf, 44, true, sizeof(buf));
+    return;
+  case _HTTP_CODE_BAD_REQUEST:
+    strCopy_T(buf, 45, true, sizeof(buf));
+    return;
+  case _HTTP_CODE_NON_AUTHORITATIVE_INFORMATION:
+    strCopy_T(buf, 46, true, sizeof(buf));
+    return;
+  case _HTTP_CODE_NO_CONTENT:
+    strCopy_T(buf, 47, true, sizeof(buf));
+    return;
+  case _HTTP_CODE_MOVED_PERMANENTLY:
+    strCopy_T(buf, 48, true, sizeof(buf));
+    return;
+  case _HTTP_CODE_USE_PROXY:
+    strCopy_T(buf, 49, true, sizeof(buf));
+    return;
+  case _HTTP_CODE_TEMPORARY_REDIRECT:
+    strCopy_T(buf, 50, true, sizeof(buf));
+    return;
+  case _HTTP_CODE_PERMANENT_REDIRECT:
+    strCopy_T(buf, 51, true, sizeof(buf));
+    return;
+  case _HTTP_CODE_UNAUTHORIZED:
+    strCopy_T(buf, 52, true, sizeof(buf));
+    return;
+  case _HTTP_CODE_FORBIDDEN:
+    strCopy_T(buf, 53, true, sizeof(buf));
+    return;
+  case _HTTP_CODE_NOT_FOUND:
+    strCopy_T(buf, 54, true, sizeof(buf));
+    return;
+  case _HTTP_CODE_METHOD_NOT_ALLOWED:
+    strCopy_T(buf, 55, true, sizeof(buf));
+    return;
+  case _HTTP_CODE_NOT_ACCEPTABLE:
+    strCopy_T(buf, 56, true, sizeof(buf));
+    return;
+  case _HTTP_CODE_PROXY_AUTHENTICATION_REQUIRED:
+    strCopy_T(buf, 57, true, sizeof(buf));
+    return;
+  case _HTTP_CODE_REQUEST_TIMEOUT:
+    strCopy_T(buf, 58, true, sizeof(buf));
+    return;
+  case _HTTP_CODE_LENGTH_REQUIRED:
+    strCopy_T(buf, 59, true, sizeof(buf));
+    return;
+  case _HTTP_CODE_TOO_MANY_REQUESTS:
+    strCopy_T(buf, 60, true, sizeof(buf));
+    return;
+  case _HTTP_CODE_REQUEST_HEADER_FIELDS_TOO_LARGE:
+    strCopy_T(buf, 61, true, sizeof(buf));
+    return;
+  case _HTTP_CODE_INTERNAL_SERVER_ERROR:
+    strCopy_T(buf, 62, true, sizeof(buf));
+    return;
+  case _HTTP_CODE_BAD_GATEWAY:
+    strCopy_T(buf, 63, true, sizeof(buf));
+    return;
+  case _HTTP_CODE_SERVICE_UNAVAILABLE:
+    strCopy_T(buf, 64, true, sizeof(buf));
+    return;
+  case _HTTP_CODE_GATEWAY_TIMEOUT:
+    strCopy_T(buf, 65, true, sizeof(buf));
+    return;
+  case _HTTP_CODE_HTTP_VERSION_NOT_SUPPORTED:
+    strCopy_T(buf, 66, true, sizeof(buf));
+    return;
+  case _HTTP_CODE_NETWORK_AUTHENTICATION_REQUIRED:
+    strCopy_T(buf, 67, true, sizeof(buf));
+    return;
+  case HTTPC_ERROR_READ_TIMEOUT:
+    strCopy_T(buf, 68, true, sizeof(buf));
+    return;
+  case FIREBASE_ERROR_DATA_TYPE_MISMATCH:
+    strCopy_T(buf, 69, true, sizeof(buf));
+    return;
+  case FIREBASE_ERROR_PATH_NOT_EXIST:
+    strCopy_T(buf, 71, true, sizeof(buf));
+    return;
+  case HTTPC_ERROR_CONNECTION_INUSED:
+    strCopy_T(buf, 94, true, sizeof(buf));
+    return;
+  case FIREBASE_ERROR_BUFFER_OVERFLOW:
+    strCopy_T(buf, 68, true, sizeof(buf));
+    return;
+  default:
+    return;
   }
 }
 
@@ -1543,7 +1537,7 @@ char *Firebase_Arduino_WiFiNINA::rstrstr(const char *haystack, const char *needl
         goto next;
     }
     return (char *)p;
-next:;
+  next:;
   }
   return 0;
 }
@@ -1820,7 +1814,6 @@ void QueryFilter::clearQuery()
 
   if (_equalTo)
     memset(_equalTo, 0, QUERY_EQUALTO_LENGTH);
-
 }
 
 void QueryFilter::orderBy(const String &val)
