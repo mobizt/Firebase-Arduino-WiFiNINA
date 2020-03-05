@@ -1,16 +1,17 @@
 /*
-* Google's Firebase Realtime Database Arduino Library for ARM/AVR WIFI Dev Boards based on WiFiNINA library, version 1.1.0
+* Google's Firebase Realtime Database Arduino Library for ARM/AVR WIFI Dev Boards based on WiFiNINA library, version 1.1.1
 * 
 *
 * This library required WiFiNINA Library to be installed.
 * https://github.com/arduino-libraries/WiFiNINA
 * 
-* December 20, 2019
+* March 5, 2020
 * 
 * Feature Added:
 * 
 * Feature Fixed:
-* - Fix empty data when none POST payload contains name key.
+* - Use dynamic memory and code optimization.
+*
 *
 * This library provides ARM/AVR WIFI Development Boards to perform REST API by GET PUT, POST, PATCH, DELETE data from/to with Google's Firebase database using get, set, update
 * and delete calls.
@@ -54,17 +55,10 @@
 #error Architecture or board not supported.
 #endif
 
-
 #define FIEBASE_PORT 443
 #define FIREBASE_RESPONSE_SIZE 400
 #define KEEP_ALIVE_TIMEOUT 30000
-
 #define HTTPC_ERROR_CONNECTION_INUSED -16
-
-#define DEF_STR_19 "null"
-#define DEF_STR_4 "."
-#define DEF_STR_106 "false"
-#define DEF_STR_107 "true"
 
 const char C_STR_0[] PROGMEM = "";
 const char C_STR_1[] PROGMEM = "/";
@@ -99,7 +93,6 @@ const char C_STR_29[] PROGMEM = "&print=silent";
 const char C_STR_30[] PROGMEM = " HTTP/1.1\r\n";
 const char C_STR_31[] PROGMEM = "Host: ";
 const char C_STR_32[] PROGMEM = "User-Agent: UNO WiFi\r\n";
-const char C_STR_33[] PROGMEM = "X-Firebase-Decoding: 1\r\n";
 const char C_STR_34[] PROGMEM = "Connection: close\r\n";
 const char C_STR_35[] PROGMEM = "Accept: text/event-stream\r\n";
 const char C_STR_36[] PROGMEM = "Connection: keep-alive\r\n";
@@ -181,55 +174,6 @@ const char C_STR_111[] PROGMEM = "http://";
 const char C_STR_112[] PROGMEM = "https://";
 const char C_STR_113[] PROGMEM = "{\".sv\": \"timestamp\"}";
 
-const char *const string_table[] PROGMEM = {
-    C_STR_0,
-    C_STR_1, C_STR_2, C_STR_3, C_STR_4, C_STR_5,
-    C_STR_6, C_STR_7, C_STR_8, C_STR_9, C_STR_10,
-    C_STR_11, C_STR_12, C_STR_13, C_STR_14, C_STR_15,
-    C_STR_16, C_STR_17, C_STR_18, C_STR_19, C_STR_20,
-    C_STR_21, C_STR_22, C_STR_23, C_STR_24, C_STR_25,
-    C_STR_26, C_STR_27, C_STR_28, C_STR_29, C_STR_30,
-    C_STR_31, C_STR_32, C_STR_33, C_STR_34, C_STR_35,
-    C_STR_36, C_STR_37, C_STR_38, C_STR_39, C_STR_40,
-    C_STR_41, C_STR_42, C_STR_43, C_STR_44, C_STR_45,
-    C_STR_46, C_STR_47, C_STR_48, C_STR_49, C_STR_50,
-    C_STR_51, C_STR_52, C_STR_53, C_STR_54, C_STR_55,
-    C_STR_56, C_STR_57, C_STR_58, C_STR_59, C_STR_60,
-    C_STR_61, C_STR_62, C_STR_63, C_STR_64, C_STR_65,
-    C_STR_66, C_STR_67, C_STR_68, C_STR_69, C_STR_70,
-    C_STR_71, C_STR_72, C_STR_73, C_STR_74, C_STR_75,
-    C_STR_76, C_STR_77, C_STR_78, C_STR_79, C_STR_80,
-    C_STR_81, C_STR_82, C_STR_83, C_STR_84, C_STR_85,
-    C_STR_86, C_STR_87, C_STR_88, C_STR_89, C_STR_90,
-    C_STR_91, C_STR_92, C_STR_93, C_STR_94, C_STR_95,
-    C_STR_96, C_STR_97, C_STR_98, C_STR_99, C_STR_100,
-    C_STR_101, C_STR_102, C_STR_103, C_STR_104, C_STR_105,
-    C_STR_106, C_STR_107, C_STR_108, C_STR_109, C_STR_110,
-    C_STR_111, C_STR_112, C_STR_113};
-
-#define FBDATA_PATH_LENGTH 200
-#define FBDATA_PATH2_LENGTH 200
-#define FBDATA_DATA_LENGTH 200
-#define FBDATA_DATA2_LENGTH 200
-#define FBDATA_STREAM_PATH_LENGTH 200
-#define FBDATA_PUSH_NAME_LENGTH 100
-#define FBDATA_REDIRECTURL_LENGTH 100
-#define FBDATA_ERROR_LENGTH 100
-#define FBDATA_EVENT_TYPE_LENGTH 100
-
-#define QUERY_ORDERBY_LENGTH 50
-#define QUERY_LIMITTOFIRST_LENGTH 50
-#define QUERY_LIMITTOLAST_LENGTH 50
-#define QUERY_STARTAT_LENGTH 50
-#define QUERY_ENDAT_LENGTH 50
-#define QUERY_EQUALTO_LENGTH 50
-
-#define FB_HOST_LENGTH 100
-#define FB_AUTH_LENGTH 100
-#define FB_SSID_LENGTH 32
-#define FB_PSW_LENGTH 64
-#define FB_JSON_RES_LENGTH 200
-
 class FirebaseData;
 class Firebase_Arduino_WiFiNINA;
 
@@ -257,20 +201,22 @@ class QueryFilter
     
     friend Firebase_Arduino_WiFiNINA;
 
-  protected:
-    char *_orderBy = new char[QUERY_ORDERBY_LENGTH];
-    char *_limitToFirst = new char[QUERY_LIMITTOFIRST_LENGTH];
-    char *_limitToLast = new char[QUERY_LIMITTOLAST_LENGTH];
-    char *_startAt = new char[QUERY_STARTAT_LENGTH];
-    char *_endAt = new char[QUERY_ENDAT_LENGTH];
-    char *_equalTo = new char[QUERY_EQUALTO_LENGTH];
-    void strCopy_T(char *buf, uint16_t index, bool empty = false, uint16_t size = 0);
-
+  private:
+    String _orderBy = "";
+    String _limitToFirst = "";
+    String _limitToLast = "";
+    String _startAt = "";
+    String _endAt = "";
+    String _equalTo = "";
+ 
 
 };
 
 class Firebase_Arduino_WiFiNINA
 {
+    friend class FirebaseData;
+    friend class QueryFilter;
+
   public:
     struct FirebaseDataType;
     struct FirebaseMethod;
@@ -720,14 +666,29 @@ class Firebase_Arduino_WiFiNINA
     */
     bool endStream(FirebaseData &dataObj);
 
-    void errorToString(int httpCode, char *buf);
+    char* errorToString(int httpCode);
 
-  protected:
+  private:
     bool sendRequest(FirebaseData &dataObj, const char *path, const uint8_t method, uint8_t dataType, const char *payload);
-    void sendFirebaseRequest(FirebaseData &dataObj, const char *host, uint8_t method, const char *path, const char *auth, uint16_t payloadLength);
+    void buildFirebaseRequest(String &req, FirebaseData &dataObj, const char *host, uint8_t method, const char *path, const char *auth, int payloadLength);
     bool firebaseConnectStream(FirebaseData &dataObj, const char *path);
     bool getServerStreamResponse(FirebaseData &dataObj);
     bool getServerResponse(FirebaseData &dataObj);
+    bool reconnect();
+    bool reconnect(FirebaseData &dataObj);
+  
+    void delPtr(char *p);
+    char *newPtr(size_t len);
+    char *newPtr(char *p, size_t len);
+    char *newPtr(char *p, size_t len, char *d);
+    char *getPGMString(PGM_P pgm);
+    void getPGMString(char *buf, PGM_P pgm, bool empty = false);
+    char *getFloatString(float value);
+    char *getIntString(int value);
+    char *getBoolString(bool value);
+    void trimDouble(char *buf);
+
+
 
     void sendHeader(FirebaseData &dataObj, const char *host, uint8_t _method, const char *path, const char *auth, uint16_t payloadLength);
     void resetFirebasedataFlag(FirebaseData &dataObj);
@@ -736,11 +697,8 @@ class Firebase_Arduino_WiFiNINA
     int firebaseConnect(FirebaseData &dataObj, const char *path, const uint8_t method, uint8_t dataType, const char *payload);
     bool cancelCurrentResponse(FirebaseData &dataObj);
     void setDataType(FirebaseData &dataObj, const char *data);
-    void strCopy(char *buf, char *p, bool empty = false, uint16_t size = 0);
-    void strCopy_T(char *buf, uint16_t index, bool empty = false, uint16_t size = 0);
-    void intBuf(char *buf, int val, bool empty = false, uint16_t size = 0);
-    void floatBuf(char *buf, float val, bool empty = false, uint16_t size = 0);
     void autoConnectWiFi();
+    bool apConnected(FirebaseData &dataObj);
 
     bool sdTest();
     void createDirs(char *dirs);
@@ -750,12 +708,14 @@ class Firebase_Arduino_WiFiNINA
     int rstrpos(const char *haystack, const char *needle, int offset);
     char *rstrstr(const char *haystack, const char *needle);
 
-    char *_host = new char[FB_HOST_LENGTH];
-    char *_auth = new char[FB_AUTH_LENGTH];
-    char *_ssid = new char[FB_SSID_LENGTH];
-    char *_psw = new char[FB_PSW_LENGTH];
+    String _host = "";
+    String _auth ="";
+    String _ssid = "";
+    String _psw = "";
     uint16_t _port;
     bool _reconnectWiFi;
+    unsigned long _lastReconnectMillis = 0;
+    uint16_t _reconnectTimeout = 10000;
 };
 
 class FirebaseData
@@ -985,7 +945,7 @@ class FirebaseData
 
     QueryFilter queryFilter;
 
-  protected:
+  private:
     bool _isStreamTimeout;
     bool _isStream;
     bool _streamStop;
@@ -1009,15 +969,15 @@ class FirebaseData
     uint8_t _r_method = 0;
     uint8_t _r_dataType;
 
-    char *_path = new char[FBDATA_PATH_LENGTH];
-    char *_path2 = new char[FBDATA_PATH2_LENGTH];
-    char *_data = new char[FBDATA_DATA_LENGTH];
-    char *_data2 = new char[FBDATA_DATA2_LENGTH];
-    char *_streamPath = new char[FBDATA_STREAM_PATH_LENGTH];
-    char *_pushName = new char[FBDATA_PUSH_NAME_LENGTH];
-    char *_redirectURL = new char[FBDATA_REDIRECTURL_LENGTH];
-    char *_firebaseError = new char[FBDATA_ERROR_LENGTH];
-    char *_eventType = new char[FBDATA_EVENT_TYPE_LENGTH];
+    String _path = "";
+    String _path2 = "";
+    String _data = "";
+    String _data2 = "";
+    String _streamPath = "";
+    String _pushName = "";
+    String _redirectURL = "";
+    String _firebaseError = "";
+    String _eventType = "";
 
     int _httpCode;
     int _contentLength;
@@ -1025,11 +985,7 @@ class FirebaseData
     unsigned long _dataMillis;
     unsigned long _streamMillis;
     unsigned long _streamResetMillis;
-
     FirebaseHTTPClient _http;
-
-    void strCopy_T(char *buf, uint16_t index, bool empty = false, uint16_t size = 0);
-
     void end();
 
     friend Firebase_Arduino_WiFiNINA;

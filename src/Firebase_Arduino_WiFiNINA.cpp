@@ -1,16 +1,17 @@
 /*
-* Google's Firebase Realtime Database Arduino Library for ARM/AVR WIFI Dev Boards based on WiFiNINA library, version 1.1.0
+* Google's Firebase Realtime Database Arduino Library for ARM/AVR WIFI Dev Boards based on WiFiNINA library, version 1.1.1
 * 
 *
 * This library required WiFiNINA Library to be installed.
 * https://github.com/arduino-libraries/WiFiNINA
 * 
-* December 20, 2019
+* March 5, 2020
 * 
 * Feature Added:
 * 
 * Feature Fixed:
-* - Fix empty data when none POST payload contains name key.
+* - Use dynamic memory and code optimization.
+*
 *
 * This library provides ARM/AVR WIFI Development Boards to perform REST API by GET PUT, POST, PATCH, DELETE data from/to with Google's Firebase database using get, set, update
 * and delete calls.
@@ -72,10 +73,10 @@ Firebase_Arduino_WiFiNINA::~Firebase_Arduino_WiFiNINA() {}
 
 void Firebase_Arduino_WiFiNINA::begin(const String &host, const String &auth, const String &wifiSSID, const String &wifiPSW)
 {
-  strCopy(_host, (char *)host.c_str(), true, FB_HOST_LENGTH);
-  strCopy(_auth, (char *)auth.c_str(), true, FB_AUTH_LENGTH);
-  strCopy(_ssid, (char *)wifiSSID.c_str(), true, FB_SSID_LENGTH);
-  strCopy(_psw, (char *)wifiPSW.c_str(), true, FB_PSW_LENGTH);
+  _host =host;
+  _auth = auth;
+  _ssid = wifiSSID;
+ _psw=wifiPSW;
   _port = FIEBASE_PORT;
 }
 
@@ -87,133 +88,102 @@ void Firebase_Arduino_WiFiNINA::reconnectWiFi(bool reconnect)
 bool Firebase_Arduino_WiFiNINA::pushInt(FirebaseData &dataObj, const String &path, int intValue)
 {
 
-  char *buf = new char[50];
-  intBuf(buf, intValue, true, 50);
-  dataObj.queryFilter.clearQuery();
+  char *buf = getIntString(intValue);
   bool res = sendRequest(dataObj, path.c_str(), FirebaseMethod::POST, FirebaseDataType::INTEGER, buf);
-  delete[] buf;
+  delPtr(buf);
   return res;
 }
 
 bool Firebase_Arduino_WiFiNINA::pushFloat(FirebaseData &dataObj, const String &path, float floatValue)
 {
-  char *buf = new char[50];
-  floatBuf(buf, floatValue, true, 50);
-  dataObj.queryFilter.clearQuery();
+  char *buf = getFloatString(floatValue);
+  trimDouble(buf);
   bool res = sendRequest(dataObj, path.c_str(), FirebaseMethod::POST, FirebaseDataType::FLOAT, buf);
-  delete[] buf;
+  delPtr(buf);
   return res;
 }
 
 bool Firebase_Arduino_WiFiNINA::pushBool(FirebaseData &dataObj, const String &path, bool boolValue)
 {
-  char *buf = new char[60];
-  if (boolValue)
-    strCopy_T(buf, 107, true, 60);
-  else
-    strCopy_T(buf, 106, true, 60);
-
-  dataObj.queryFilter.clearQuery();
+  char *buf = getBoolString(boolValue);
   bool res = sendRequest(dataObj, path.c_str(), FirebaseMethod::POST, FirebaseDataType::BOOLEAN, buf);
-  delete[] buf;
+  delPtr(buf);
   return res;
 }
 
 bool Firebase_Arduino_WiFiNINA::pushString(FirebaseData &dataObj, const String &path, const String &stringValue)
 {
-  dataObj.queryFilter.clearQuery();
   return sendRequest(dataObj, path.c_str(), FirebaseMethod::POST, FirebaseDataType::STRING, stringValue.c_str());
 }
 
 bool Firebase_Arduino_WiFiNINA::pushJSON(FirebaseData &dataObj, const String &path, const String &jsonString)
 {
-  dataObj.queryFilter.clearQuery();
   return sendRequest(dataObj, path.c_str(), FirebaseMethod::POST, FirebaseDataType::JSON, jsonString.c_str());
 }
 
 bool Firebase_Arduino_WiFiNINA::pushTimestamp(FirebaseData &dataObj, const String &path)
 {
-  char *tmp = new char[60];
-  strCopy_T(tmp, 113, true, 60);
-
-  bool flag = sendRequest(dataObj, path.c_str(), FirebaseMethod::POST, FirebaseDataType::TIMESTAMP, tmp);
-  delete[] tmp;
+  char *buf = getPGMString(C_STR_113);
+  bool flag = sendRequest(dataObj, path.c_str(), FirebaseMethod::POST, FirebaseDataType::TIMESTAMP, buf);
+  delPtr(buf);
   return flag;
 }
 
 bool Firebase_Arduino_WiFiNINA::setInt(FirebaseData &dataObj, const String &path, int intValue)
 {
-  char *buf = new char[50];
-  intBuf(buf, intValue, true, 50);
-  dataObj.queryFilter.clearQuery();
+  char *buf = getIntString(intValue);
   bool res = sendRequest(dataObj, path.c_str(), FirebaseMethod::PUT, FirebaseDataType::INTEGER, buf);
-  delete[] buf;
+  delPtr(buf);
   return res;
 }
 
 bool Firebase_Arduino_WiFiNINA::setFloat(FirebaseData &dataObj, const String &path, float floatValue)
 {
-  uint8_t bufSize = 50;
-  char *buf = new char[bufSize];
-  floatBuf(buf, floatValue, true, bufSize);
-  dataObj.queryFilter.clearQuery();
+  char *buf = getFloatString(floatValue);
+  trimDouble(buf);
   bool res = sendRequest(dataObj, path.c_str(), FirebaseMethod::PUT, FirebaseDataType::FLOAT, buf);
-  delete[] buf;
+  delPtr(buf);
   return res;
 }
 
 bool Firebase_Arduino_WiFiNINA::setBool(FirebaseData &dataObj, const String &path, bool boolValue)
 {
-  uint8_t bufSize = 50;
-  char *buf = new char[bufSize];
-  if (boolValue)
-    strCopy_T(buf, 107, true, bufSize);
-  else
-    strCopy_T(buf, 106, true, bufSize);
-
-  dataObj.queryFilter.clearQuery();
+  char *buf = getBoolString(boolValue);
   bool res = sendRequest(dataObj, path.c_str(), FirebaseMethod::PUT, FirebaseDataType::BOOLEAN, buf);
-  delete[] buf;
+  delPtr(buf);
   return res;
 }
 
 bool Firebase_Arduino_WiFiNINA::setString(FirebaseData &dataObj, const String &path, const String &stringValue)
 {
-  dataObj.queryFilter.clearQuery();
   return sendRequest(dataObj, path.c_str(), FirebaseMethod::PUT, FirebaseDataType::STRING, stringValue.c_str());
 }
 
 bool Firebase_Arduino_WiFiNINA::setJSON(FirebaseData &dataObj, const String &path, const String &jsonString)
 {
-  dataObj.queryFilter.clearQuery();
   return sendRequest(dataObj, path.c_str(), FirebaseMethod::PUT, FirebaseDataType::JSON, jsonString.c_str());
 }
 
 bool Firebase_Arduino_WiFiNINA::setTimestamp(FirebaseData &dataObj, const String &path)
 {
-  char *tmp = new char[60];
-  strCopy_T(tmp, 113, true, 60);
-
-  bool flag = sendRequest(dataObj, path.c_str(), FirebaseMethod::PUT, FirebaseDataType::TIMESTAMP, tmp);
-  delete[] tmp;
+  char *buf = getPGMString(C_STR_113);
+  bool flag = sendRequest(dataObj, path.c_str(), FirebaseMethod::PUT, FirebaseDataType::TIMESTAMP, buf);
+  delPtr(buf);
   return flag;
 }
 
 bool Firebase_Arduino_WiFiNINA::updateNode(FirebaseData &dataObj, const String path, const String jsonString)
 {
-  dataObj.queryFilter.clearQuery();
   return sendRequest(dataObj, path.c_str(), FirebaseMethod::PATCH, FirebaseDataType::JSON, jsonString.c_str());
 }
 
 bool Firebase_Arduino_WiFiNINA::updateNodeSilent(FirebaseData &dataObj, const String &path, const String &jsonString)
 {
-  dataObj.queryFilter.clearQuery();
   return sendRequest(dataObj, path.c_str(), FirebaseMethod::PATCH_SILENT, FirebaseDataType::JSON, jsonString.c_str());
 }
 
 bool Firebase_Arduino_WiFiNINA::getInt(FirebaseData &dataObj, const String &path)
 {
-  dataObj.queryFilter.clearQuery();
   return getFloat(dataObj, path);
 }
 
@@ -256,14 +226,14 @@ bool Firebase_Arduino_WiFiNINA::getJSON(FirebaseData &dataObj, const String &pat
 bool Firebase_Arduino_WiFiNINA::getJSON(FirebaseData &dataObj, const String &path, QueryFilter &query)
 {
   dataObj.queryFilter.clearQuery();
-  if (strlen(query._orderBy) > 0)
+  if (query._orderBy !="")
   {
-    strcpy(dataObj.queryFilter._orderBy, query._orderBy);
-    strcpy(dataObj.queryFilter._limitToFirst, query._limitToFirst);
-    strcpy(dataObj.queryFilter._limitToLast, query._limitToLast);
-    strcpy(dataObj.queryFilter._startAt, query._startAt);
-    strcpy(dataObj.queryFilter._endAt, query._endAt);
-    strcpy(dataObj.queryFilter._equalTo, query._equalTo);
+    dataObj.queryFilter._orderBy = query._orderBy;
+    dataObj.queryFilter._limitToFirst=query._limitToFirst;
+    dataObj.queryFilter._limitToLast=query._limitToLast;
+    dataObj.queryFilter._startAt=query._startAt;
+    dataObj.queryFilter._endAt=query._endAt;
+    dataObj.queryFilter._equalTo=query._equalTo;
   }
 
   bool flag = sendRequest(dataObj, path.c_str(), FirebaseMethod::GET, FirebaseDataType::JSON, "");
@@ -293,7 +263,7 @@ bool Firebase_Arduino_WiFiNINA::readStream(FirebaseData &dataObj)
 bool Firebase_Arduino_WiFiNINA::endStream(FirebaseData &dataObj)
 {
   bool flag = false;
-  memset(dataObj._streamPath, 0, FBDATA_STREAM_PATH_LENGTH);
+  dataObj._streamPath ="";
   forceEndHTTP(dataObj);
   flag = dataObj._http.http_connected();
   if (!flag)
@@ -304,50 +274,44 @@ bool Firebase_Arduino_WiFiNINA::endStream(FirebaseData &dataObj)
   return !flag;
 }
 
-int Firebase_Arduino_WiFiNINA::firebaseConnect(FirebaseData &dataObj, const char *path, const uint8_t method, uint8_t dataType, const char *payload)
+bool Firebase_Arduino_WiFiNINA::apConnected(FirebaseData &dataObj)
 {
-  memset(dataObj._firebaseError, 0, FBDATA_ERROR_LENGTH);
-
-  if (dataObj._pause)
-    return 0;
-
   if (WiFi.status() != WL_CONNECTED)
   {
     dataObj._httpCode = HTTPC_ERROR_CONNECTION_LOST;
-    return -1;
+    return false;
   }
+  return true;
+}
 
-  if (strlen(path) == 0 || strlen(_host) == 0 || strlen(_auth) == 0)
+int Firebase_Arduino_WiFiNINA::firebaseConnect(FirebaseData &dataObj, const char *path, const uint8_t method, uint8_t dataType, const char *payload)
+{
+   dataObj._firebaseError="";
+
+   if (dataObj._pause)
+    return 0;
+
+  if (!apConnected(dataObj))
+    return HTTPC_ERROR_CONNECTION_LOST;
+
+  if (strlen(path) == 0 || _host.length() == 0 || _auth.length() == 0)
   {
     dataObj._httpCode = _HTTP_CODE_BAD_REQUEST;
     return _HTTP_CODE_BAD_REQUEST;
   }
 
-  uint16_t bufSize = 32;
-  char *buf = new char[bufSize];
-
-  uint16_t tempSize = 200;
-  char *temp = new char[tempSize];
-
-  int len = 0;
-  uint16_t toRead = 0;
   bool httpConnected = false;
-
-  uint16_t payloadStrSize = strlen(payload) + 10;
-
-  char *payloadStr = new char[payloadStrSize];
-  memset(payloadStr, 0, payloadStrSize);
-
-  int httpCode = -1;
+  int httpCode = HTTPC_ERROR_CONNECTION_REFUSED;
 
   //init the firebase data
   resetFirebasedataFlag(dataObj);
-  memset(dataObj._path, 0, FBDATA_PATH_LENGTH);
+ 
+  dataObj._path="";
 
   if (method == FirebaseMethod::STREAM)
   {
     //stream path change? reset the current (keep alive) connection
-    if (strcmp(path, dataObj._streamPath) != 0)
+    if (strcmp(path, dataObj._streamPath.c_str()) != 0)
       dataObj._streamPathChanged = true;
     if (!dataObj._isStream || dataObj._streamPathChanged)
     {
@@ -355,13 +319,13 @@ int Firebase_Arduino_WiFiNINA::firebaseConnect(FirebaseData &dataObj, const char
         forceEndHTTP(dataObj);
     }
 
-    memset(dataObj._streamPath, 0, FBDATA_STREAM_PATH_LENGTH);
+    dataObj._streamPath = "";
 
     if (strlen(path) > 0)
       if (path[0] != '/')
-        strCopy_T(dataObj._streamPath, 1);
+        dataObj._streamPath = "/";
 
-    strcat(dataObj._streamPath, path);
+    dataObj._streamPath +=path;
   }
   else
   {
@@ -369,70 +333,125 @@ int Firebase_Arduino_WiFiNINA::firebaseConnect(FirebaseData &dataObj, const char
     if (dataObj._isStream)
       forceEndHTTP(dataObj);
 
-    memset(dataObj._path, 0, FBDATA_PATH_LENGTH);
-
-    if (strlen(path) > 0)
+    if (strlen(path) > 0){
       if (path[0] != '/')
-        strCopy_T(dataObj._path, 1);
+        dataObj._path = "/";
+    }
 
-    strcat(dataObj._path, path);
-
+    dataObj._path += path;
     dataObj._isStreamTimeout = false;
   }
 
-  httpConnected = dataObj._http.http_begin(_host, _port);
+
+  if (!reconnect(dataObj))
+    return HTTPC_ERROR_CONNECTION_LOST;
+
+  httpConnected = dataObj._http.http_begin(_host.c_str(), _port);
 
   if (!httpConnected)
   {
     dataObj._httpCode = HTTPC_ERROR_CONNECTION_REFUSED;
-    goto EXIT_1;
+    return HTTPC_ERROR_CONNECTION_REFUSED;
   }
 
-  //Prepare for string and JSON payloads
-  if (method != FirebaseMethod::GET && method != FirebaseMethod::STREAM &&
-      method != FirebaseMethod::DELETE)
+  if (!reconnect(dataObj))
+    return HTTPC_ERROR_CONNECTION_LOST;
+
+  bool hasPayload =  (method != FirebaseMethod::GET && method != FirebaseMethod::STREAM && method != FirebaseMethod::DELETE);
+  bool isString = dataType == FirebaseDataType::STRING && hasPayload;
+  uint16_t len = isString? strlen(payload) + 2 : strlen(payload);
+ 
+  String req;
+
+  buildFirebaseRequest(req, dataObj, _host.c_str(), method, path, _auth.c_str(), len);
+
+  if(isString)
   {
-    memset(payloadStr, 0, payloadStrSize);
-    if (dataType == FirebaseDataType::STRING)
-      strCopy_T(payloadStr, 3);
-    strcat(payloadStr, payload);
-    if (dataType == FirebaseDataType::STRING)
-      strCopy_T(payloadStr, 3);
+   char *t = getPGMString( C_STR_3);
+   req+=t;
+   delPtr(t);
+  }
+    
+  req += payload;
+
+  if(isString)
+  {
+   char *t = getPGMString( C_STR_3);
+   req+=t;
+   delPtr(t);
   }
 
-  //Prepare request header
 
-  sendFirebaseRequest(dataObj, _host, method, path, _auth, strlen(payloadStr));
+
+  httpCode = dataObj._http.http_sendRequest(req.c_str(),"");
+
 
   if (method == FirebaseMethod::PATCH_SILENT)
     dataObj._isSilentResponse = true;
-
-  //Send request w/wo payload
-  httpCode = dataObj._http.http_sendRequest("", payloadStr);
-
-  delete[] payloadStr;
-  delete[] buf;
-  delete[] temp;
+  
   return httpCode;
+  
+}
 
-EXIT_1:
+bool Firebase_Arduino_WiFiNINA::reconnect(FirebaseData &dataObj)
+{
+  bool flag = reconnect();
+  if (!flag)
+    dataObj._httpCode = HTTPC_ERROR_CONNECTION_LOST;
+  return flag;
+}
 
-  delete[] payloadStr;
-  delete[] buf;
-  delete[] temp;
-  return -1;
+bool Firebase_Arduino_WiFiNINA::reconnect()
+{
+  if (_reconnectWiFi && WiFi.status() != WL_CONNECTED)
+  {
+    if (_lastReconnectMillis == 0)
+    {
+      autoConnectWiFi();
+      _lastReconnectMillis = millis();
+    }
+    if (WiFi.status() != WL_CONNECTED)
+    {
+      if (millis() - _lastReconnectMillis > _reconnectTimeout)
+        _lastReconnectMillis = 0;
+      return false;
+    }
+    else
+    {
+      _lastReconnectMillis = 0;
+    }
+  }
+  return WiFi.status() == WL_CONNECTED;
+}
+
+void Firebase_Arduino_WiFiNINA::autoConnectWiFi()
+{
+  if (_reconnectWiFi && WiFi.status() != WL_CONNECTED && _ssid !=""  && _psw !="")
+  {
+    uint8_t tryCount = 0;
+    int status = WL_IDLE_STATUS;
+    while (status != WL_CONNECTED)
+    {
+      tryCount++;
+      status = WiFi.begin(_ssid.c_str(), _psw.c_str());
+      delay(250);
+      if (tryCount > 20)
+        break;
+    }
+  }
 }
 
 bool Firebase_Arduino_WiFiNINA::sendRequest(FirebaseData &dataObj, const char *path, const uint8_t method, uint8_t dataType, const char *payload)
 {
+  
 
   bool flag = false;
-  memset(dataObj._firebaseError, 0, FBDATA_ERROR_LENGTH);
+  dataObj._firebaseError= "";
 
   if (dataObj._pause)
     return true;
 
-  if (strlen(path) == 0 || strlen(_host) == 0 || strlen(_auth) == 0)
+  if (strlen(path) == 0 || _host == "" || _auth =="")
   {
     dataObj._httpCode = _HTTP_CODE_BAD_REQUEST;
     return false;
@@ -454,6 +473,8 @@ bool Firebase_Arduino_WiFiNINA::sendRequest(FirebaseData &dataObj, const char *p
     return false;
   }
 
+  
+
   //Get the current WiFi client from current firebase data
   //Check for connection status
   if (dataObj._http.http_connected())
@@ -474,11 +495,10 @@ bool Firebase_Arduino_WiFiNINA::sendRequest(FirebaseData &dataObj, const char *p
       {
         dataObj._streamMillis = millis() + 50;
         dataObj._interruptRequest = true;
-        delay(20);
+
         if (dataObj._http.http_connected())
         {
 
-          delay(20);
           forceEndHTTP(dataObj);
           if (dataObj._http.http_connected())
             if (!dataObj._isStream)
@@ -494,7 +514,7 @@ bool Firebase_Arduino_WiFiNINA::sendRequest(FirebaseData &dataObj, const char *p
 
   dataObj._httpConnected = true;
   dataObj._interruptRequest = false;
-  memset(dataObj._redirectURL, 0, FBDATA_REDIRECTURL_LENGTH);
+  dataObj._redirectURL ="";
   dataObj._r_method = method;
   dataObj._r_dataType = dataType;
 
@@ -514,9 +534,10 @@ bool Firebase_Arduino_WiFiNINA::sendRequest(FirebaseData &dataObj, const char *p
     }
     else
     {
-      strCopy(dataObj._path, (char *)path, true, FBDATA_PATH_LENGTH);
+   
+      dataObj._path = path;
       flag = getServerResponse(dataObj);
-      dataObj._dataAvailable = strlen(dataObj._data) > 0;
+      dataObj._dataAvailable = dataObj._data !="";
     }
 
     if (!flag)
@@ -527,7 +548,6 @@ bool Firebase_Arduino_WiFiNINA::sendRequest(FirebaseData &dataObj, const char *p
     //can't establish connection
     dataObj._httpCode = httpCode;
     dataObj._httpConnected = false;
-    delay(100);
     return false;
   }
 
@@ -546,8 +566,6 @@ bool Firebase_Arduino_WiFiNINA::getServerResponse(FirebaseData &dataObj)
     return false;
   }
 
-  WiFiSSLClient client = dataObj._http.client;
-
   if (!dataObj._http.http_connected() || dataObj._interruptRequest)
     return cancelCurrentResponse(dataObj);
   if (!handleNetClientNotConnected(dataObj) || !dataObj._httpConnected)
@@ -555,24 +573,12 @@ bool Firebase_Arduino_WiFiNINA::getServerResponse(FirebaseData &dataObj)
 
   bool flag = false;
 
-  memset(dataObj._data, 0, FBDATA_DATA_LENGTH);
+  dataObj._data="";
 
-  char *jsonRes = new char[FB_JSON_RES_LENGTH];
-  memset(jsonRes, 0, FB_JSON_RES_LENGTH);
-
-  char *lineBuf = new char[FIREBASE_RESPONSE_SIZE];
-  memset(lineBuf, 0, FIREBASE_RESPONSE_SIZE);
-
-  uint16_t tempBufSize = FIREBASE_RESPONSE_SIZE;
-  char *tmp = new char[tempBufSize];
-  memset(tmp, 0, tempBufSize);
-
-  uint16_t eventTypeSize = 30;
-  char *eventType = new char[eventTypeSize];
-  memset(eventType, 0, eventTypeSize);
-
-  char *fstr = new char[60];
-  memset(fstr, 0, 60);
+  char *lineBuf = newPtr(FIREBASE_RESPONSE_SIZE);
+  char *tmp = nullptr;
+  char *tmp2 = nullptr;
+  char *eventType = newPtr(30);
 
   char c;
   int p1, p2;
@@ -580,7 +586,7 @@ bool Firebase_Arduino_WiFiNINA::getServerResponse(FirebaseData &dataObj)
   dataObj._httpCode = -1000;
   dataObj._contentLength = -1;
   dataObj._bufferOverflow = false;
-  memset(dataObj._pushName, 0, FBDATA_PUSH_NAME_LENGTH);
+  dataObj._pushName ="";
 
   bool hasEvent = false;
   bool hasEventData = false;
@@ -592,27 +598,26 @@ bool Firebase_Arduino_WiFiNINA::getServerResponse(FirebaseData &dataObj)
   uint16_t charPos = 0;
 
   if (!dataObj._isStream)
-    while (client.connected() && !client.available() && millis() - dataTime < dataObj._http.netClientTimeout)
-      delay(1);
+    while (dataObj._http.client.connected() && !dataObj._http.client.available() && millis() - dataTime < dataObj._http.netClientTimeout)
+      delay(0);
 
   dataTime = millis();
 
-  if (client.connected() && client.available())
+  if (dataObj._http.client.connected() && dataObj._http.client.available())
   {
-    while (client.available())
+    while (dataObj._http.client.available())
     {
 
       if (dataObj._interruptRequest)
         return cancelCurrentResponse(dataObj);
 
-      c = client.read();
+      c = dataObj._http.client.read();
 
       if (payLoadBegin && dataObj._contentLength > 0)
       {
         if (charPos % 128 == 0)
         {
           dataTime = millis();
-          delayMicroseconds(10);
         }
       }
 
@@ -637,26 +642,30 @@ bool Firebase_Arduino_WiFiNINA::getServerResponse(FirebaseData &dataObj)
 
         if (strlen(lineBuf) > 0)
         {
-          strCopy_T(fstr, 5, true, 60);
-          p1 = strpos(lineBuf, fstr, 0);
+          tmp = getPGMString(C_STR_5);
+          p1 = strpos(lineBuf, tmp, 0);
+          delPtr(tmp);
+
           if (p1 != -1)
           {
-            memset(tmp, 0, tempBufSize);
+            tmp = newPtr(strlen(lineBuf) - p1 - 9);
             strncpy(tmp, lineBuf + p1 + 9, strlen(lineBuf) - p1 - 9);
             dataObj._httpCode = atoi(tmp);
+            delPtr(tmp);
           }
 
           if (dataObj._httpCode == _HTTP_CODE_TEMPORARY_REDIRECT)
           {
-            strCopy_T(fstr, 95, true, 60);
-            p1 = strpos(lineBuf, fstr, 0);
+            tmp = getPGMString(C_STR_95);
+            p1 = strpos(lineBuf, tmp, 0);
+            delPtr(tmp);
             if (p1 != -1)
             {
-              memset(tmp, 0, tempBufSize);
-              memset(dataObj._redirectURL, 0, FBDATA_REDIRECTURL_LENGTH);
+              tmp = newPtr(strlen(lineBuf) - p1 - strlen_P(C_STR_95));
               strncpy(tmp, lineBuf + p1 + strlen_P(C_STR_95), strlen(lineBuf) - p1 - strlen_P(C_STR_95));
-              strcpy(dataObj._redirectURL, tmp);
-              int res = firebaseConnect(dataObj, dataObj._redirectURL, dataObj._r_method, dataObj._r_dataType, "");
+              dataObj._redirectURL = tmp;
+              delPtr(tmp);
+              int res = firebaseConnect(dataObj, dataObj._redirectURL.c_str(), dataObj._r_method, dataObj._r_dataType, "");
 
               if (res == 0)
                 goto EXIT_4;
@@ -668,81 +677,99 @@ bool Firebase_Arduino_WiFiNINA::getServerResponse(FirebaseData &dataObj)
           if (dataObj._httpCode == _HTTP_CODE_NO_CONTENT)
             continue;
 
-          strCopy_T(fstr, 7, true, 60);
-          if (strpos(lineBuf, fstr, 0) != -1)
+            tmp = getPGMString(C_STR_7);
+            bool  flag = strpos(lineBuf, tmp, 0) != -1;
+            delPtr(tmp);
+           
+          if (flag)
           {
-            strCopy_T(fstr, 102, true, 60);
-            p1 = strpos(lineBuf, fstr, 0);
+            tmp = getPGMString(C_STR_102);
+            p1 = strpos(lineBuf, tmp, 0);
+            delPtr(tmp);
             if (p1 != -1)
             {
-              memset(dataObj._firebaseError, 0, FBDATA_ERROR_LENGTH);
-              memset(tmp, 0, tempBufSize);
+              tmp = newPtr(strlen(lineBuf) - p1 - strlen_P(C_STR_102));
               strncpy(tmp, lineBuf + p1 + strlen_P(C_STR_102) + 1, strlen(lineBuf) - p1 - strlen_P(C_STR_102));
-              strncpy(dataObj._firebaseError, tmp, strlen(tmp) - 1);
+              tmp2 = newPtr(strlen(tmp) - 1);
+              strncpy(tmp2, tmp, strlen(tmp) - 1);
+              dataObj._firebaseError = tmp2;
+              delPtr(tmp2);
+              delPtr(tmp);
             }
 
-            strCopy_T(fstr, 8, true, 60);
-            p1 = strpos(lineBuf, fstr, 0);
+            tmp = getPGMString(C_STR_8);
+            p1 = strpos(lineBuf, tmp, 0);
+            delPtr(tmp);
             if (p1 != -1)
             {
-              memset(tmp, 0, tempBufSize);
+              tmp = newPtr(strlen(lineBuf) - p1 - strlen_P(C_STR_8));
               strncpy(tmp, lineBuf + p1 + strlen_P(C_STR_8), strlen(lineBuf) - p1 - strlen_P(C_STR_8));
 
-              strCopy_T(fstr, 9, true, 60);
-              if (strcmp(tmp, fstr) == 0)
+              tmp2 = getPGMString(C_STR_9);
+              if (strcmp(tmp, tmp2) == 0)
+              {
                 isStream = true;
+              }
+                
+              delPtr(tmp2);
+              delPtr(tmp);
+              
             }
 
-            strCopy_T(fstr, 10, true, 60);
-            p1 = strpos(lineBuf, fstr, 0);
+            tmp = getPGMString(C_STR_10);
+            p1 = strpos(lineBuf, tmp, 0);
+            delPtr(tmp);
             if (p1 != -1)
             {
-              memset(tmp, 0, tempBufSize);
+              tmp = newPtr(strlen(lineBuf) - p1 - strlen_P(C_STR_10));
               strncpy(tmp, lineBuf + p1 + strlen_P(C_STR_10), strlen(lineBuf) - p1 - strlen_P(C_STR_10));
-
-              strCopy_T(fstr, 11, true, 60);
-              if (strcmp(tmp, fstr) == 0)
+              tmp2 = getPGMString(C_STR_11);
+              if (strcmp(tmp, tmp2) == 0)
                 dataObj._keepAlive = true;
               else
                 dataObj._keepAlive = false;
+              delPtr(tmp2);
+              delPtr(tmp);
             }
 
-            strCopy_T(fstr, 12, true, 60);
-            p1 = strpos(lineBuf, fstr, 0);
+            tmp = getPGMString(C_STR_12);
+            p1 = strpos(lineBuf, tmp, 0);
+            delPtr(tmp);
             if (p1 != -1)
             {
 
-              memset(tmp, 0, tempBufSize);
+              tmp = newPtr(strlen(lineBuf) - p1 - strlen_P(C_STR_12));
               strncpy(tmp, lineBuf + p1 + strlen_P(C_STR_12), strlen(lineBuf) - p1 - strlen_P(C_STR_12));
-
               dataObj._contentLength = atoi(tmp);
+              delPtr(tmp);
             }
 
-            strCopy_T(fstr, 13, true, 60);
-            p1 = strpos(lineBuf, fstr, 0);
+            tmp = getPGMString(C_STR_13);
+            p1 = strpos(lineBuf, tmp, 0);
+            delPtr(tmp);
             if (p1 != -1)
             {
-              memset(eventType, 0, eventTypeSize);
+              eventType = newPtr(eventType, strlen(lineBuf) - p1 - strlen_P(C_STR_13));
               strncpy(eventType, lineBuf + p1 + strlen_P(C_STR_13), strlen(lineBuf) - p1 - strlen_P(C_STR_13));
-
               hasEvent = true;
               isStream = true;
               dataObj._httpCode = _HTTP_CODE_OK;
               memset(lineBuf, 0, FIREBASE_RESPONSE_SIZE);
             }
 
-            strCopy_T(fstr, 14, true, 60);
-            p1 = strpos(lineBuf, fstr, 0);
+            tmp = getPGMString(C_STR_14);
+            p1 = strpos(lineBuf, tmp, 0);
+            delPtr(tmp);
             if (p1 != -1)
             {
               hasEventData = true;
               isStream = true;
               dataObj._httpCode = _HTTP_CODE_OK;
-
-              memset(tmp, 0, tempBufSize);
+              tmp = newPtr(strlen(lineBuf) - p1 - strlen_P(C_STR_14));
               strncpy(tmp, lineBuf + p1 + strlen_P(C_STR_14), strlen(lineBuf) - p1 - strlen_P(C_STR_14));
               memset(lineBuf, 0, FIREBASE_RESPONSE_SIZE);
               strcpy(lineBuf, tmp);
+              delPtr(tmp);
               break;
             }
           }
@@ -757,7 +784,6 @@ bool Firebase_Arduino_WiFiNINA::getServerResponse(FirebaseData &dataObj)
 
       if (millis() - dataTime > dataObj._http.netClientTimeout)
       {
-        //cancelCurrentResponse(dataObj);
         dataObj._httpCode = HTTPC_ERROR_READ_TIMEOUT;
         break;
       }
@@ -765,60 +791,66 @@ bool Firebase_Arduino_WiFiNINA::getServerResponse(FirebaseData &dataObj)
 
     if (dataObj._httpCode == _HTTP_CODE_OK)
     {
-
       //JSON stream data?
       if (isStream)
       {
         if (hasEventData && hasEvent)
         {
           bool m = false;
-          strCopy_T(fstr, 15, true, 60);
-          m |= strpos(eventType, fstr, 0) != -1;
+          tmp = getPGMString(C_STR_15);
+          m |= strpos(eventType, tmp, 0) != -1;
+          delPtr(tmp);
 
-          strCopy_T(fstr, 16, true, 60);
-          m |= strpos(eventType, fstr, 0) != -1;
+          tmp = getPGMString(C_STR_16);
+          m |= strpos(eventType, tmp, 0) != -1;
+          delPtr(tmp);
 
           if (m)
           {
-            strCopy(dataObj._eventType, eventType, true, FBDATA_EVENT_TYPE_LENGTH);
+            dataObj._eventType = eventType;
 
             //Parses json response for path
-            strCopy_T(fstr, 17, true, 60);
-            p1 = strpos(lineBuf, fstr, 0);
+            tmp = getPGMString(C_STR_17);
+            p1 = strpos(lineBuf, tmp, 0);
+            delPtr(tmp);
             if (p1 != -1 && p1 < FIREBASE_RESPONSE_SIZE)
             {
-              strCopy_T(fstr, 3, true, 60);
-              p2 = strpos(lineBuf, fstr, p1 + strlen_P(C_STR_17));
+              tmp = getPGMString(C_STR_3);
+              p2 = strpos(lineBuf, tmp, p1 + strlen_P(C_STR_17));
+              delPtr(tmp);
               if (p2 != -1)
               {
-                memset(tmp, 0, tempBufSize);
+                tmp = newPtr(p2 - p1 - strlen_P(C_STR_17));
                 strncpy(tmp, lineBuf + p1 + strlen_P(C_STR_17), p2 - p1 - strlen_P(C_STR_17));
-                strCopy(dataObj._path, tmp, true, FBDATA_PATH_LENGTH);
+                dataObj._path=tmp;
+                delPtr(tmp);
               }
             }
 
             //Parses json response for data
-            strCopy_T(fstr, 18, true, 60);
-            p1 = strpos(lineBuf, fstr, 0);
+            tmp = getPGMString(C_STR_18);
+            p1 = strpos(lineBuf, tmp, 0);
+            delPtr(tmp);
             if (p1 != -1 && p1 < FIREBASE_RESPONSE_SIZE)
             {
-              memset(tmp, 0, tempBufSize);
+              tmp = newPtr(strlen(lineBuf) - p1 - strlen_P(C_STR_18) - 1);
               strncpy(tmp, lineBuf + p1 + strlen_P(C_STR_18), strlen(lineBuf) - p1 - strlen_P(C_STR_18) - 1);
-              strCopy(dataObj._data, tmp, true, FBDATA_DATA_LENGTH);
+              dataObj._data = tmp;
+              delPtr(tmp);
 
-              setDataType(dataObj, dataObj._data);
+              setDataType(dataObj, dataObj._data.c_str());
+
               bool samePath = dataObj._path == dataObj._path2;
-              strCopy_T(fstr, 1, true, 60);
-              bool rootPath = strcmp(dataObj._path, fstr) == 0;
-              bool emptyPath = strlen(dataObj._path2) == 0;
-              bool sameData = strcmp(dataObj._data, dataObj._data2) == 0;
+              bool rootPath = dataObj._path= "/";
+              bool emptyPath = dataObj._path2== "";
+              bool sameData = dataObj._data == dataObj._data2;
 
               //Any stream update?
               if ((!samePath && (!rootPath || emptyPath)) || (samePath && !sameData && !dataObj._streamPathChanged))
               {
                 dataObj._streamDataChanged = true;
-                strCopy(dataObj._data2, dataObj._data, true, FBDATA_DATA2_LENGTH);
-                strCopy(dataObj._path2, dataObj._path, true, FBDATA_PATH2_LENGTH);
+                dataObj._data2 = dataObj._data;
+                dataObj._path2 =dataObj._path;
               }
               else
                 dataObj._streamDataChanged = false;
@@ -834,21 +866,22 @@ bool Firebase_Arduino_WiFiNINA::getServerResponse(FirebaseData &dataObj)
           else
           {
             //Firebase keep alive data
-            strCopy_T(fstr, 11, true, 60);
-            if (strcmp(eventType, fstr) == 0)
+            tmp = getPGMString(C_STR_11);
+            if (strcmp(eventType, tmp) == 0)
             {
               dataObj._isStreamTimeout = false;
               dataObj._dataMillis = millis();
 
-              //if (dataObj._timeoutCallback)
-              //  dataObj._timeoutCallback(false);
             }
+            delPtr(tmp);
 
             //Firebase cancel and auth_revoked events
-            strCopy_T(fstr, 109, true, 60);
-            bool m2 = strcmp(eventType, fstr) == 0;
-            strCopy_T(fstr, 110, true, 60);
-            m2 |= strcmp(eventType, fstr) == 0;
+            tmp = getPGMString(C_STR_109);
+            bool m2 = strcmp(eventType, tmp) == 0;
+            delPtr(tmp);
+            tmp = getPGMString(C_STR_110);
+            m2 |= strcmp(eventType, tmp) == 0;
+            delPtr(tmp);
 
             if (m2)
             {
@@ -866,26 +899,29 @@ bool Firebase_Arduino_WiFiNINA::getServerResponse(FirebaseData &dataObj)
       else
       {
         //Just text payload
-        strCopy(dataObj._data, lineBuf, true, FBDATA_DATA_LENGTH);
+        dataObj._data = lineBuf;
         setDataType(dataObj, lineBuf);
 
         //Push (POST) data?
         if (dataObj._r_method == FirebaseMethod::POST)
         {
-          strCopy_T(fstr, 20, true, 60);
-          p1 = strpos(lineBuf, fstr, 0);
+          tmp = getPGMString(C_STR_20);
+          p1 = strpos(lineBuf, tmp, 0);
+          delPtr(tmp);
           if (p1 != -1)
           {
-            strCopy_T(fstr, 3, true, 60);
-            p2 = strpos(lineBuf, fstr, p1 + strlen_P(C_STR_20));
+            tmp = getPGMString(C_STR_3);
+            p2 = strpos(lineBuf, tmp, p1 + strlen_P(C_STR_20));
+            delPtr(tmp);
             if (p2 != -1)
             {
-              memset(tmp, 0, tempBufSize);
+              tmp =newPtr(p2 - p1 - strlen_P(C_STR_20));
               strncpy(tmp, lineBuf + p1 + strlen_P(C_STR_20), p2 - p1 - strlen_P(C_STR_20));
-              strCopy(dataObj._pushName, tmp, true, FBDATA_PUSH_NAME_LENGTH);
+              dataObj._pushName=tmp;
+              delPtr(tmp);
               dataObj._dataType = 0;
               dataObj._dataType2 = 0;
-              memset(dataObj._data, 0, FBDATA_DATA_LENGTH);
+              dataObj._data ="";
             }
           }
         }
@@ -898,9 +934,9 @@ bool Firebase_Arduino_WiFiNINA::getServerResponse(FirebaseData &dataObj)
         if (dataObj._httpCode == _HTTP_CODE_NO_CONTENT)
         {
           dataObj._httpCode = _HTTP_CODE_OK;
-          memset(dataObj._path, 0, FBDATA_PATH_LENGTH);
-          memset(dataObj._data, 0, FBDATA_DATA_LENGTH);
-          memset(dataObj._pushName, 0, FBDATA_PUSH_NAME_LENGTH);
+          dataObj._path="";
+          dataObj._data="";
+          dataObj._pushName="";
           dataObj._dataType = 0;
           dataObj._dataType2 = 0;
           dataObj._dataAvailable = false;
@@ -942,21 +978,15 @@ bool Firebase_Arduino_WiFiNINA::getServerResponse(FirebaseData &dataObj)
 
   dataObj._httpConnected = false;
   dataObj._streamMillis = millis();
-  delete[] lineBuf;
-  delete[] tmp;
-  delete[] eventType;
-  delete[] jsonRes;
-  delete[] fstr;
+  delPtr(lineBuf);
+  delPtr(eventType);
 
   return flag;
 
 EXIT_2:
 
-  delete[] lineBuf;
-  delete[] tmp;
-  delete[] eventType;
-  delete[] jsonRes;
-  delete[] fstr;
+  delPtr(lineBuf);
+  delPtr(eventType);
 
   if (dataObj._httpCode == HTTPC_ERROR_READ_TIMEOUT)
     return false;
@@ -964,19 +994,13 @@ EXIT_2:
 
 EXIT_3:
 
-  delete[] lineBuf;
-  delete[] tmp;
-  delete[] eventType;
-  delete[] jsonRes;
-  delete[] fstr;
+  delPtr(lineBuf);
+  delPtr(eventType);
   return true;
 
 EXIT_4:
-  delete[] lineBuf;
-  delete[] tmp;
-  delete[] eventType;
-  delete[] jsonRes;
-  delete[] fstr;
+  delPtr(lineBuf);
+  delPtr(eventType);
   return getServerResponse(dataObj);
 }
 
@@ -988,20 +1012,18 @@ bool Firebase_Arduino_WiFiNINA::firebaseConnectStream(FirebaseData &dataObj, con
 
   dataObj._streamStop = false;
 
-  if (!dataObj._isStreamTimeout && dataObj._isStream && path == dataObj._streamPath)
+  if (!dataObj._isStreamTimeout && dataObj._isStream && strcmp(path, dataObj._streamPath.c_str())==0)
     return true;
 
-  if (strlen(path) == 0 || strlen(_host) == 0 || strlen(_auth) == 0)
+  if (strlen(path) == 0 || _host =="" || _auth =="")
   {
     dataObj._httpCode = _HTTP_CODE_BAD_REQUEST;
     return false;
   }
 
-  if (millis() - dataObj._streamResetMillis > 50)
-    delay(50);
 
   bool flag;
-  flag = strlen(dataObj._streamPath) == 0;
+  flag = dataObj._streamPath == "";
   flag |= firebaseConnect(dataObj, path, FirebaseMethod::STREAM, FirebaseDataType::STRING, "") == 0;
   dataObj._dataMillis = millis();
   return flag;
@@ -1009,6 +1031,7 @@ bool Firebase_Arduino_WiFiNINA::firebaseConnectStream(FirebaseData &dataObj, con
 
 bool Firebase_Arduino_WiFiNINA::getServerStreamResponse(FirebaseData &dataObj)
 {
+   bool res = false;
 
   if (dataObj._pause || dataObj._streamStop)
     return true;
@@ -1019,39 +1042,28 @@ bool Firebase_Arduino_WiFiNINA::getServerStreamResponse(FirebaseData &dataObj)
   if (dataObj._streamResetMillis == 0)
     dataObj._streamResetMillis = ml;
 
-  //Reset firebase data every 50 ms and extend delay for 50 ms before stream response checking
-  //to allow other http connection that may happen
-  if (ml - dataObj._streamResetMillis > 50)
-  {
-    dataObj._streamResetMillis = ml;
-    dataObj._streamDataChanged = false;
-    memset(dataObj._data2, 0, FBDATA_DATA2_LENGTH);
-    memset(dataObj._path2, 0, FBDATA_PATH2_LENGTH);
-    dataObj._dataAvailable = false;
-    dataObj._isStreamTimeout = false;
 
-    delay(50);
-    return true;
-  }
-
-  if (ml - dataObj._streamMillis > 50)
+  if (ml - dataObj._streamMillis > 0)
   {
 
     dataObj._streamMillis = ml;
-    char *path = new char[strlen(dataObj._streamPath)];
-    memset(path, 0, strlen(dataObj._streamPath));
-
+    String path = "";
+    
     //Stream timeout
     if (dataObj._dataMillis > 0 && millis() - dataObj._dataMillis > KEEP_ALIVE_TIMEOUT)
     {
       dataObj._dataMillis = millis();
       dataObj._isStreamTimeout = true;
-      strcpy(path, dataObj._streamPath);
+      path = dataObj._streamPath;
 
       autoConnectWiFi();
 
-      firebaseConnectStream(dataObj, path);
-      return getServerResponse(dataObj);
+      firebaseConnectStream(dataObj, path.c_str());
+      res = getServerResponse(dataObj);
+
+      if (!dataObj._httpConnected)
+        dataObj._httpCode = HTTPC_ERROR_NOT_CONNECTED;
+      return res;
     }
 
     //last connection was not close
@@ -1061,19 +1073,21 @@ bool Firebase_Arduino_WiFiNINA::getServerStreamResponse(FirebaseData &dataObj)
     dataObj._httpConnected = true;
     resetFirebasedataFlag(dataObj);
 
-    WiFiSSLClient client = dataObj._http.client;
-
-    if (client.connected() && !dataObj._isStream)
+    if (dataObj._http.client.connected() && !dataObj._isStream)
       forceEndHTTP(dataObj);
-    if (!client.connected())
+
+    if (!dataObj._http.client.connected())
     {
-      strcpy(path, dataObj._streamPath);
-      firebaseConnectStream(dataObj, path);
+      path = dataObj._streamPath;
+      firebaseConnectStream(dataObj, path.c_str());
     }
 
-    delete[] path;
+    res = getServerResponse(dataObj);
 
-    return getServerResponse(dataObj);
+    if (!dataObj._httpConnected)
+      dataObj._httpCode = HTTPC_ERROR_NOT_CONNECTED;
+
+    return res;
   }
 
   return true;
@@ -1081,164 +1095,220 @@ bool Firebase_Arduino_WiFiNINA::getServerStreamResponse(FirebaseData &dataObj)
 
 void Firebase_Arduino_WiFiNINA::forceEndHTTP(FirebaseData &dataObj)
 {
-  WiFiSSLClient client = dataObj._http.client;
-
-  if (client.available() > 0)
+  if (dataObj._http.client.available() > 0)
   {
-    client.flush();
-    delay(50);
+    dataObj._http.client.read();
   }
-  client.stop();
-  delay(50);
+  dataObj._http.client.stop();
 }
 
-void Firebase_Arduino_WiFiNINA::sendFirebaseRequest(FirebaseData &dataObj, const char *host, uint8_t method, const char *path, const char *auth, uint16_t payloadLength)
+
+
+void Firebase_Arduino_WiFiNINA::delPtr(char * p)
 {
+  if (p != nullptr)
+    delete[] p;
+    p = nullptr;
+}
 
-  uint8_t retryCount = 0;
-  uint8_t maxRetry = 5;
+char *Firebase_Arduino_WiFiNINA::newPtr(size_t len)
+{
+  char *p = new char[len + 1];
+  memset(p, 0, len + 1);
+  return p;
+}
 
-  uint16_t headerSize = 400;
-  char *request = new char[headerSize];
-  memset(request, 0, headerSize);
+char *Firebase_Arduino_WiFiNINA::newPtr(char *p, size_t len)
+{
+  delPtr(p);
+  p = newPtr(len);
+  return p;
+}
 
-  uint16_t numBufSize = 50;
+char *Firebase_Arduino_WiFiNINA::newPtr(char *p, size_t len, char *d)
+{
+  delPtr(p);
+  p = newPtr(len);
+  strcpy(p, d);
+  return p;
+}
 
-  char *contentLength = new char[numBufSize];
 
-  memset(contentLength, 0, numBufSize);
+char *Firebase_Arduino_WiFiNINA::getPGMString(PGM_P pgm)
+{
+  size_t len = strlen_P(pgm) + 1;
+  char *buf = newPtr(len);
+  strcat_P(buf, pgm);
+  return buf;
+}
 
-  char *num = new char[numBufSize];
+void Firebase_Arduino_WiFiNINA::getPGMString(char *buf, PGM_P pgm, bool empty)
+{
+  if (empty)
+    memset(buf, 0, strlen(buf));
+  strcat_P(buf, pgm);
+}
 
+char *Firebase_Arduino_WiFiNINA::getFloatString(float value)
+{
+  char *buf = newPtr(36);
+  dtostrf(value, 7, 6, buf);
+  return buf;
+}
+
+char *Firebase_Arduino_WiFiNINA::getIntString(int value)
+{
+  char *buf = newPtr(36);
+  itoa(value, buf, 10);
+  return buf;
+}
+
+char *Firebase_Arduino_WiFiNINA::getBoolString(bool value)
+{
+  char *buf = nullptr;
+  if (value)
+    buf = getPGMString(C_STR_107);
+  else
+    buf = getPGMString(C_STR_106);
+  return buf;
+}
+
+void Firebase_Arduino_WiFiNINA::trimDouble(char *buf)
+{
+  size_t i = strlen(buf) - 1;
+  while (buf[i] == '0' && i > 0)
+  {
+    if (buf[i - 1] == '.')
+    {
+      i--;
+      break;
+    }
+    if (buf[i - 1] != '0')
+      break;
+    i--;
+  }
+  if (i < strlen(buf) - 1)
+    buf[i] = '\0';
+}
+
+void Firebase_Arduino_WiFiNINA::buildFirebaseRequest(String &req, FirebaseData &dataObj, const char *host, uint8_t method, const char *path, const char *auth, int payloadLength)
+{
+  char *buf = newPtr(400);
   if (method == FirebaseMethod::STREAM)
   {
-    strCopy_T(request, 22);
+    getPGMString(buf, C_STR_22);
     dataObj._isStream = true;
   }
   else
   {
-
     if (method == FirebaseMethod::PUT || method == FirebaseMethod::PUT_SILENT)
-      strCopy_T(request, 23);
+      getPGMString(buf, C_STR_23);
     else if (method == FirebaseMethod::POST)
-      strCopy_T(request, 24);
+      getPGMString(buf, C_STR_24);
     else if (method == FirebaseMethod::GET)
-      strCopy_T(request, 25);
+      getPGMString(buf, C_STR_25);
     else if (method == FirebaseMethod::PATCH || method == FirebaseMethod::PATCH_SILENT)
-      strCopy_T(request, 26);
+      getPGMString(buf, C_STR_26);
     else if (method == FirebaseMethod::DELETE)
-      strCopy_T(request, 27);
-    strCopy_T(request, 6);
+      getPGMString(buf, C_STR_27);
+    getPGMString(buf, C_STR_6);
 
     dataObj._isStream = false;
-  }
-
-  retryCount = 0;
-  while (dataObj._http.http_sendRequest(request, "") != 0)
-  {
-    retryCount++;
-    if (retryCount > maxRetry)
-      break;
   }
 
   if (strlen(path) > 0)
   {
     if (path[0] != '/')
-    {
-      strCopy_T(request, 1, true, headerSize);
-      dataObj._http.http_sendRequest(request, "");
-    }
+      getPGMString(buf, C_STR_1);
   }
 
-  dataObj._http.http_sendRequest(path, "");
-
-  memset(request, 0, headerSize);
+  strcat(buf,path);
 
   if (method == FirebaseMethod::PATCH || method == FirebaseMethod::PATCH_SILENT)
-    strCopy_T(request, 1);
+    getPGMString(buf, C_STR_1);
 
-  strCopy_T(request, 2);
+  getPGMString(buf, C_STR_2);
 
-  strcat(request, auth);
+  strcat(buf, auth);
 
-  if (method == FirebaseMethod::GET && strlen(dataObj.queryFilter._orderBy) > 0)
+  if (method == FirebaseMethod::GET && dataObj.queryFilter._orderBy !="")
   {
-    strCopy_T(request, 96);
-    strcat(request, dataObj.queryFilter._orderBy);
+    getPGMString(buf, C_STR_96);
+    strcat(buf, dataObj.queryFilter._orderBy.c_str());
 
-    if (method == FirebaseMethod::GET && strlen(dataObj.queryFilter._limitToFirst) > 0)
+    if (method == FirebaseMethod::GET && dataObj.queryFilter._limitToFirst !="")
     {
-      strCopy_T(request, 97);
-      strcat(request, dataObj.queryFilter._limitToFirst);
+      getPGMString(buf, C_STR_97);
+      strcat(buf, dataObj.queryFilter._limitToFirst.c_str());
     }
 
-    if (method == FirebaseMethod::GET && strlen(dataObj.queryFilter._limitToLast) > 0)
+    if (method == FirebaseMethod::GET && dataObj.queryFilter._limitToLast !="")
     {
-      strCopy_T(request, 98);
-      strcat(request, dataObj.queryFilter._limitToLast);
+      getPGMString(buf, C_STR_98);
+      strcat(buf, dataObj.queryFilter._limitToLast.c_str());
     }
 
-    if (method == FirebaseMethod::GET && strlen(dataObj.queryFilter._startAt) > 0)
+    if (method == FirebaseMethod::GET && dataObj.queryFilter._startAt != "")
     {
-      strCopy_T(request, 99);
-      strcat(request, dataObj.queryFilter._startAt);
+      getPGMString(buf, C_STR_99);
+      strcat(buf, dataObj.queryFilter._startAt.c_str());
     }
 
-    if (method == FirebaseMethod::GET && strlen(dataObj.queryFilter._endAt) > 0)
+    if (method == FirebaseMethod::GET && dataObj.queryFilter._endAt !="")
     {
 
-      strCopy_T(request, 100);
-      strcat(request, dataObj.queryFilter._endAt);
+      getPGMString(buf, C_STR_100);
+      strcat(buf, dataObj.queryFilter._endAt.c_str());
     }
 
-    if (method == FirebaseMethod::GET && strlen(dataObj.queryFilter._equalTo) > 0)
+    if (method == FirebaseMethod::GET && dataObj.queryFilter._equalTo !="")
     {
-      strCopy_T(request, 101);
-      strcat(request, dataObj.queryFilter._equalTo);
+      getPGMString(buf, C_STR_101);
+      strcat(buf, dataObj.queryFilter._equalTo.c_str());
     }
   }
 
   if (method == FirebaseMethod::PUT_SILENT || method == FirebaseMethod::PATCH_SILENT)
-    strCopy_T(request, 29);
+    getPGMString(buf, C_STR_29);
 
-  strCopy_T(request, 30);
-  strCopy_T(request, 31);
+  getPGMString(buf, C_STR_30);
+  getPGMString(buf, C_STR_31);
 
-  strcat(request, host);
+  strcat(buf, host);
 
-  strCopy_T(request, 21);
-  strCopy_T(request, 32);
-  strCopy_T(request, 33);
+  getPGMString(buf, C_STR_21);
+  getPGMString(buf, C_STR_32);
 
   if (method == FirebaseMethod::STREAM)
   {
-    strCopy_T(request, 34);
-    strCopy_T(request, 35);
+    getPGMString(buf, C_STR_34);
+    getPGMString(buf, C_STR_35);
   }
   else
   {
-
-    strCopy_T(request, 36);
-    strCopy_T(request, 37);
+    getPGMString(buf, C_STR_36);
+    getPGMString(buf, C_STR_37);
   }
+
+    getPGMString(buf, C_STR_38);
 
   if (method == FirebaseMethod::PUT || method == FirebaseMethod::PUT_SILENT || method == FirebaseMethod::POST || method == FirebaseMethod::PATCH || method == FirebaseMethod::PATCH_SILENT)
   {
 
-    strCopy_T(request, 12);
-    itoa(payloadLength, contentLength, 10);
-    strcat(request, contentLength);
+    getPGMString(buf, C_STR_12);
+    char *t = getIntString(payloadLength);
+    strcat(buf, t);
+    delete[] t;
   }
 
-  strCopy_T(request, 21);
-  strCopy_T(request, 21);
+  getPGMString(buf, C_STR_21);
+  getPGMString(buf, C_STR_21);
 
-  dataObj._http.http_sendRequest(request, "");
+  req = buf;
+  delete[] buf;
 
-  delete[] contentLength;
-  delete[] num;
-  delete[] request;
 }
+
 
 bool Firebase_Arduino_WiFiNINA::cancelCurrentResponse(FirebaseData &dataObj)
 {
@@ -1246,19 +1316,18 @@ bool Firebase_Arduino_WiFiNINA::cancelCurrentResponse(FirebaseData &dataObj)
   dataObj._isStream = false;
   dataObj._streamDataChanged = false;
   dataObj._dataMillis = millis();
-  memset(dataObj._data2, 0, FBDATA_DATA2_LENGTH);
-  memset(dataObj._path2, 0, FBDATA_PATH2_LENGTH);
+  dataObj._data2 = "";
+  dataObj._path2 ="";
   dataObj._dataAvailable = false;
   dataObj._isStreamTimeout = false;
   dataObj._httpCode = HTTPC_ERROR_CONNECTION_REFUSED;
   return false;
 }
 
+
 void Firebase_Arduino_WiFiNINA::setDataType(FirebaseData &dataObj, const char *data)
 {
 
-  uint16_t len = 32;
-  char *temp = new char[len];
   bool typeSet = false;
 
   if (strlen(data) > 0)
@@ -1269,15 +1338,19 @@ void Firebase_Arduino_WiFiNINA::setDataType(FirebaseData &dataObj, const char *d
       dataObj._dataType = FirebaseDataType::JSON;
     }
 
+    char *t = getPGMString(C_STR_106);
+    char *u = getPGMString(C_STR_107);
+
     if (!typeSet)
     {
-
-      if (strcmp(data, DEF_STR_106) == 0 || strcmp(data, DEF_STR_107) == 0)
+      if (strcmp(data, t) == 0 || strcmp(data, u) == 0)
       {
         typeSet = true;
         dataObj._dataType = FirebaseDataType::BOOLEAN;
       }
     }
+    delPtr(t);
+    delPtr(u);
 
     if (!typeSet && data[0] == '"')
     {
@@ -1285,13 +1358,15 @@ void Firebase_Arduino_WiFiNINA::setDataType(FirebaseData &dataObj, const char *d
       dataObj._dataType = FirebaseDataType::STRING;
     }
 
-    if (!typeSet && strpos(data, DEF_STR_4, 0) != -1)
+    t = getPGMString(C_STR_4);
+    u = getPGMString(C_STR_19);
+
+    if (!typeSet && strpos(data, t, 0) != -1)
     {
       typeSet = true;
       dataObj._dataType = FirebaseDataType::FLOAT;
     }
-
-    else if (!typeSet && strcmp(data, DEF_STR_19) == 0)
+    else if (!typeSet && strcmp(data, u) == 0)
     {
       typeSet = true;
       dataObj._dataType = FirebaseDataType::NULL_;
@@ -1303,10 +1378,15 @@ void Firebase_Arduino_WiFiNINA::setDataType(FirebaseData &dataObj, const char *d
       dataObj._dataType = FirebaseDataType::INTEGER;
     }
 
-    if (strcmp(data, DEF_STR_19) == 0 && strlen(dataObj.queryFilter._orderBy) == 0)
-      memset(dataObj._data, 0, FBDATA_DATA_LENGTH);
-    else if (strcmp(data, DEF_STR_19) == 0 && strlen(dataObj.queryFilter._orderBy) > 0)
+    if (strcmp(data, u) == 0 && dataObj.queryFilter._orderBy == "")
+    {
+      dataObj._data="";
+    }
+    else if (strcmp(data, u) == 0 && dataObj.queryFilter._orderBy =="")
       dataObj._dataType = FirebaseDataType::JSON;
+
+    delPtr(t);
+    delPtr(u);
   }
   else
   {
@@ -1314,8 +1394,6 @@ void Firebase_Arduino_WiFiNINA::setDataType(FirebaseData &dataObj, const char *d
   }
 
   dataObj._dataTypeNum = dataObj._dataType;
-
-  delete[] temp;
 }
 
 void Firebase_Arduino_WiFiNINA::resetFirebasedataFlag(FirebaseData &dataObj)
@@ -1324,7 +1402,7 @@ void Firebase_Arduino_WiFiNINA::resetFirebasedataFlag(FirebaseData &dataObj)
   dataObj._streamDataChanged = false;
   dataObj._streamPathChanged = false;
   dataObj._dataAvailable = false;
-  memset(dataObj._pushName, 0, FBDATA_PUSH_NAME_LENGTH);
+  dataObj._pushName = "";
 }
 bool Firebase_Arduino_WiFiNINA::handleNetClientNotConnected(FirebaseData &dataObj)
 {
@@ -1333,169 +1411,127 @@ bool Firebase_Arduino_WiFiNINA::handleNetClientNotConnected(FirebaseData &dataOb
     dataObj._contentLength = -1;
     dataObj._dataType = FirebaseDataType::NULL_;
     dataObj._httpCode = HTTPC_ERROR_NOT_CONNECTED;
-    memset(dataObj._data, 0, FBDATA_DATA_LENGTH);
-    memset(dataObj._path, 0, FBDATA_PATH_LENGTH);
+    dataObj._data ="";
+    dataObj._path ="";
     resetFirebasedataFlag(dataObj);
     return false;
   }
   return true;
 }
 
-void Firebase_Arduino_WiFiNINA::errorToString(int httpCode, char *buf)
+char * Firebase_Arduino_WiFiNINA::errorToString(int httpCode)
 {
+  char *buf = nullptr;
   switch (httpCode)
   {
   case HTTPC_ERROR_CONNECTION_REFUSED:
-    strCopy_T(buf, 39, true, sizeof(buf));
-    return;
+    buf = getPGMString(C_STR_39);
+    break;
   case HTTPC_ERROR_SEND_HEADER_FAILED:
-    strCopy_T(buf, 40, true, sizeof(buf));
-    return;
+    buf = getPGMString(C_STR_40);
+    break;
   case HTTPC_ERROR_SEND_PAYLOAD_FAILED:
-    strCopy_T(buf, 41, true, sizeof(buf));
-    return;
+    buf = getPGMString(C_STR_41);
+    break;
   case HTTPC_ERROR_NOT_CONNECTED:
-    strCopy_T(buf, 42, true, sizeof(buf));
-    return;
+    buf = getPGMString(C_STR_42);
+    break;
   case HTTPC_ERROR_CONNECTION_LOST:
-    strCopy_T(buf, 43, true, sizeof(buf));
-    return;
+    buf = getPGMString(C_STR_43);
+    break;
   case HTTPC_ERROR_NO_HTTP_SERVER:
-    strCopy_T(buf, 44, true, sizeof(buf));
-    return;
+    buf = getPGMString(C_STR_44);
+    break;
   case _HTTP_CODE_BAD_REQUEST:
-    strCopy_T(buf, 45, true, sizeof(buf));
-    return;
+    buf = getPGMString(C_STR_45);
+    break;
   case _HTTP_CODE_NON_AUTHORITATIVE_INFORMATION:
-    strCopy_T(buf, 46, true, sizeof(buf));
-    return;
+    buf = getPGMString(C_STR_46);
+    break;
   case _HTTP_CODE_NO_CONTENT:
-    strCopy_T(buf, 47, true, sizeof(buf));
-    return;
+    buf = getPGMString(C_STR_47);
+    break;
   case _HTTP_CODE_MOVED_PERMANENTLY:
-    strCopy_T(buf, 48, true, sizeof(buf));
-    return;
+    buf = getPGMString(C_STR_48);
+    break;
   case _HTTP_CODE_USE_PROXY:
-    strCopy_T(buf, 49, true, sizeof(buf));
-    return;
+    buf = getPGMString(C_STR_49);
+    break;
   case _HTTP_CODE_TEMPORARY_REDIRECT:
-    strCopy_T(buf, 50, true, sizeof(buf));
-    return;
+    buf = getPGMString(C_STR_50);
+    break;
   case _HTTP_CODE_PERMANENT_REDIRECT:
-    strCopy_T(buf, 51, true, sizeof(buf));
-    return;
+    buf = getPGMString(C_STR_51);
+    break;
   case _HTTP_CODE_UNAUTHORIZED:
-    strCopy_T(buf, 52, true, sizeof(buf));
-    return;
+    buf = getPGMString(C_STR_52);
+    break;
   case _HTTP_CODE_FORBIDDEN:
-    strCopy_T(buf, 53, true, sizeof(buf));
-    return;
+    buf = getPGMString(C_STR_53);
+    break;
   case _HTTP_CODE_NOT_FOUND:
-    strCopy_T(buf, 54, true, sizeof(buf));
-    return;
+    buf = getPGMString(C_STR_54);
+    break;
   case _HTTP_CODE_METHOD_NOT_ALLOWED:
-    strCopy_T(buf, 55, true, sizeof(buf));
-    return;
+    buf = getPGMString(C_STR_55);
+    break;
   case _HTTP_CODE_NOT_ACCEPTABLE:
-    strCopy_T(buf, 56, true, sizeof(buf));
-    return;
+    buf = getPGMString(C_STR_56);
+    break;
   case _HTTP_CODE_PROXY_AUTHENTICATION_REQUIRED:
-    strCopy_T(buf, 57, true, sizeof(buf));
-    return;
+    buf = getPGMString(C_STR_57);
+    break;
   case _HTTP_CODE_REQUEST_TIMEOUT:
-    strCopy_T(buf, 58, true, sizeof(buf));
-    return;
+    buf = getPGMString(C_STR_58);
+    break;
   case _HTTP_CODE_LENGTH_REQUIRED:
-    strCopy_T(buf, 59, true, sizeof(buf));
-    return;
+    buf = getPGMString(C_STR_59);
+    break;
   case _HTTP_CODE_TOO_MANY_REQUESTS:
-    strCopy_T(buf, 60, true, sizeof(buf));
-    return;
+    buf = getPGMString(C_STR_60);
+    break;
   case _HTTP_CODE_REQUEST_HEADER_FIELDS_TOO_LARGE:
-    strCopy_T(buf, 61, true, sizeof(buf));
-    return;
+    buf = getPGMString(C_STR_61);
+    break;
   case _HTTP_CODE_INTERNAL_SERVER_ERROR:
-    strCopy_T(buf, 62, true, sizeof(buf));
-    return;
+    buf = getPGMString(C_STR_62);
+    break;
   case _HTTP_CODE_BAD_GATEWAY:
-    strCopy_T(buf, 63, true, sizeof(buf));
-    return;
+    buf = getPGMString(C_STR_63);
+    break;
   case _HTTP_CODE_SERVICE_UNAVAILABLE:
-    strCopy_T(buf, 64, true, sizeof(buf));
-    return;
+    buf = getPGMString(C_STR_64);
+    break;
   case _HTTP_CODE_GATEWAY_TIMEOUT:
-    strCopy_T(buf, 65, true, sizeof(buf));
-    return;
+    buf = getPGMString(C_STR_65);
+    break;
   case _HTTP_CODE_HTTP_VERSION_NOT_SUPPORTED:
-    strCopy_T(buf, 66, true, sizeof(buf));
-    return;
+    buf = getPGMString(C_STR_66);
+    break;
   case _HTTP_CODE_NETWORK_AUTHENTICATION_REQUIRED:
-    strCopy_T(buf, 67, true, sizeof(buf));
-    return;
+    buf = getPGMString(C_STR_67);
+    break;
   case HTTPC_ERROR_READ_TIMEOUT:
-    strCopy_T(buf, 68, true, sizeof(buf));
-    return;
+    buf = getPGMString(C_STR_68);
+    break;
   case FIREBASE_ERROR_DATA_TYPE_MISMATCH:
-    strCopy_T(buf, 69, true, sizeof(buf));
-    return;
+    buf = getPGMString(C_STR_69);
+    break;
   case FIREBASE_ERROR_PATH_NOT_EXIST:
-    strCopy_T(buf, 71, true, sizeof(buf));
-    return;
+    buf = getPGMString(C_STR_71);
+    break;
   case HTTPC_ERROR_CONNECTION_INUSED:
-    strCopy_T(buf, 94, true, sizeof(buf));
-    return;
+    buf = getPGMString(C_STR_94);
+    break;
   case FIREBASE_ERROR_BUFFER_OVERFLOW:
-    strCopy_T(buf, 68, true, sizeof(buf));
-    return;
+    buf = getPGMString(C_STR_68);
+    break;
   default:
-    return;
+    break;
   }
+  return buf;
 }
 
-void Firebase_Arduino_WiFiNINA::strCopy(char *buf, char *p, bool empty, uint16_t size)
-{
-  if (empty)
-    memset(buf, 0, size);
-  strcat(buf, p);
-}
-
-void Firebase_Arduino_WiFiNINA::strCopy_T(char *buf, uint16_t index, bool empty, uint16_t size)
-{
-  if (empty)
-    memset(buf, 0, size);
-  strcat_P(buf, (char *)pgm_read_word(&(string_table[index])));
-}
-
-void Firebase_Arduino_WiFiNINA::intBuf(char *buf, int val, bool empty, uint16_t size)
-{
-  if (empty)
-    memset(buf, 0, size);
-  itoa(val, buf, 10);
-}
-
-void Firebase_Arduino_WiFiNINA::floatBuf(char *buf, float val, bool empty, uint16_t size)
-{
-  if (empty)
-    memset(buf, 0, size);
-  dtostrf(val, 7, 6, buf);
-}
-
-void Firebase_Arduino_WiFiNINA::autoConnectWiFi()
-{
-  if (_reconnectWiFi && WiFi.status() != WL_CONNECTED && strlen(_ssid) > 0 && strlen(_psw) > 0)
-  {
-    uint8_t tryCount = 0;
-    int status = WL_IDLE_STATUS;
-    while (status != WL_CONNECTED)
-    {
-      tryCount++;
-      status = WiFi.begin(_ssid, _psw);
-      delay(500);
-      if (tryCount > 10)
-        break;
-    }
-  }
-}
 
 void Firebase_Arduino_WiFiNINA::strcat_c(char *str, char c)
 {
@@ -1506,29 +1542,42 @@ void Firebase_Arduino_WiFiNINA::strcat_c(char *str, char c)
 }
 int Firebase_Arduino_WiFiNINA::strpos(const char *haystack, const char *needle, int offset)
 {
-  char _haystack[strlen(haystack)];
-  strncpy(_haystack, haystack + offset, strlen(haystack) - offset);
+  size_t len = strlen(haystack);
+  size_t len2 = strlen(needle);
+  if (len == 0 || len < len2 || len2 == 0)
+    return -1;
+  char *_haystack = newPtr(len);
+  strncpy(_haystack, haystack + offset, len - offset);
   char *p = strstr(_haystack, needle);
+  int r = -1;
   if (p)
-    return p - _haystack + offset;
-  return -1;
+    r = p - _haystack + offset;
+  delPtr(_haystack);
+  return r;
 }
 
 int Firebase_Arduino_WiFiNINA::rstrpos(const char *haystack, const char *needle, int offset)
 {
-  char _haystack[strlen(haystack)];
-  strncpy(_haystack, haystack + offset, strlen(haystack) - offset);
+  size_t len = strlen(haystack);
+  size_t len2 = strlen(needle);
+  if (len == 0 || len < len2 || len2 == 0)
+    return -1;
+  char *_haystack = newPtr(len);
+  strncpy(_haystack, haystack + offset, len - offset);
   char *p = rstrstr(_haystack, needle);
+  int r = -1;
   if (p)
-    return p - _haystack + offset;
-  return -1;
+    r = p - _haystack + offset;
+  delPtr(_haystack);
+  return r;
 }
+
 char *Firebase_Arduino_WiFiNINA::rstrstr(const char *haystack, const char *needle)
 {
-  uint16_t needle_length = strlen(needle);
+  size_t needle_length = strlen(needle);
   const char *haystack_end = haystack + strlen(haystack) - needle_length;
   const char *p;
-  uint16_t i;
+  size_t i;
   for (p = haystack_end; p >= haystack; --p)
   {
     for (i = 0; i < needle_length; ++i)
@@ -1551,15 +1600,15 @@ FirebaseData ::~FirebaseData()
 
 void FirebaseData::end()
 {
-  delete[] _path;
-  delete[] _path2;
-  delete[] _data;
-  delete[] _data2;
-  delete[] _streamPath;
-  delete[] _pushName;
-  delete[] _redirectURL;
-  delete[] _firebaseError;
-  delete[] _eventType;
+  _path="";
+  _path2 ="";
+  _data="";
+  _data2="";
+  _streamPath="";
+  _pushName="";
+  _redirectURL="";
+  _firebaseError="";
+  _eventType="";
 }
 
 WiFiSSLClient FirebaseData::getWiFiClient()
@@ -1574,11 +1623,9 @@ bool FirebaseData::pauseFirebase(bool pause)
   {
     if (_http.client.available() > 0)
     {
-      _http.client.flush();
-      delay(50);
+      _http.client.read();
     }
     _http.client.stop();
-    delay(50);
     if (!_http.http_connected())
     {
       _pause = pause;
@@ -1595,20 +1642,22 @@ bool FirebaseData::pauseFirebase(bool pause)
 
 String FirebaseData::dataType()
 {
-  char buf[50];
+  char *buf =nullptr;
   if (_dataType == Firebase_Arduino_WiFiNINA::FirebaseDataType::JSON)
-    strCopy_T(buf, 74, true, 50);
+    buf = Firebase.getPGMString(C_STR_74);
   else if (_dataType == Firebase_Arduino_WiFiNINA::FirebaseDataType::STRING)
-    strCopy_T(buf, 75, true, 50);
+    buf = Firebase.getPGMString(C_STR_75);
   else if (_dataType == Firebase_Arduino_WiFiNINA::FirebaseDataType::FLOAT)
-    strCopy_T(buf, 76, true, 50);
+    buf = Firebase.getPGMString(C_STR_76);
   else if (_dataType == Firebase_Arduino_WiFiNINA::FirebaseDataType::BOOLEAN)
-    strCopy_T(buf, 105, true, 50);
+    buf = Firebase.getPGMString(C_STR_105);
   else if (_dataType == Firebase_Arduino_WiFiNINA::FirebaseDataType::INTEGER)
-    strCopy_T(buf, 77, true, 50);
+    buf = Firebase.getPGMString(C_STR_77);
   else if (_dataType == Firebase_Arduino_WiFiNINA::FirebaseDataType::NULL_)
-    strCopy_T(buf, 78, true, 50);
-  return buf;
+    buf = Firebase.getPGMString(C_STR_78);
+  String res = buf;
+  Firebase.delPtr(buf);
+  return res;
 }
 
 String FirebaseData::eventType()
@@ -1623,44 +1672,38 @@ String FirebaseData::streamPath()
 
 String FirebaseData::dataPath()
 {
-  return _path;
+    return _path;
 }
 
 int FirebaseData::intData()
 {
-  if (strlen(_data) > 0 && (_dataType == Firebase_Arduino_WiFiNINA::FirebaseDataType::INTEGER || _dataType == Firebase_Arduino_WiFiNINA::FirebaseDataType::FLOAT))
-    return atoi(_data);
+  if (_data !="" && (_dataType == Firebase_Arduino_WiFiNINA::FirebaseDataType::INTEGER || _dataType == Firebase_Arduino_WiFiNINA::FirebaseDataType::FLOAT))
+    return atoi(_data.c_str());
   else
     return 0;
 }
 
 float FirebaseData::floatData()
 {
-  if (strlen(_data) > 0 && (_dataType == Firebase_Arduino_WiFiNINA::FirebaseDataType::INTEGER || _dataType == Firebase_Arduino_WiFiNINA::FirebaseDataType::FLOAT))
-    return atof(_data);
+  if (_data !=""  && (_dataType == Firebase_Arduino_WiFiNINA::FirebaseDataType::INTEGER || _dataType == Firebase_Arduino_WiFiNINA::FirebaseDataType::FLOAT))
+    return atof(_data.c_str());
   else
     return 0.0;
 }
 
 bool FirebaseData::boolData()
 {
-  bool res;
-  char *str = new char[10];
-  strCopy_T(str, 107, true, 10);
-  if (strlen(_data) > 0 && _dataType == Firebase_Arduino_WiFiNINA::FirebaseDataType::BOOLEAN)
-    res = strcmp(_data, str) == 0;
-  delete[] str;
+  bool res = false;
+  if (_data !="" && _dataType == Firebase_Arduino_WiFiNINA::FirebaseDataType::BOOLEAN)
+    res = _data == "true";
   return res;
 }
 
 String FirebaseData::stringData()
 {
-  if (strlen(_data) > 0 && _dataType == Firebase_Arduino_WiFiNINA::FirebaseDataType::STRING)
+  if (_data !="" && _dataType == Firebase_Arduino_WiFiNINA::FirebaseDataType::STRING)
   {
-    char *buf = new char[strlen(_data)];
-    memset(buf, 0, strlen(_data));
-    strncpy(buf, _data + 1, strlen(_data) - 2);
-    return buf;
+    return _data.substring(1, _data.length() -1);
   }
   else
     return String();
@@ -1668,7 +1711,7 @@ String FirebaseData::stringData()
 
 String FirebaseData::jsonData()
 {
-  if (strlen(_data) > 0 && _dataType == Firebase_Arduino_WiFiNINA::FirebaseDataType::JSON)
+  if (_data !="" && _dataType == Firebase_Arduino_WiFiNINA::FirebaseDataType::JSON)
     return _data;
   else
     return String();
@@ -1676,10 +1719,7 @@ String FirebaseData::jsonData()
 
 String FirebaseData::pushName()
 {
-  if (strlen(_pushName) > 0)
     return _pushName;
-  else
-    return String();
 }
 
 bool FirebaseData::isStream()
@@ -1724,9 +1764,7 @@ String FirebaseData::payload()
 
 String FirebaseData::errorReason()
 {
-  char *buf = new char[FBDATA_ERROR_LENGTH];
-  memset(buf, 0, FBDATA_ERROR_LENGTH);
-
+ 
   if (_httpCode == _HTTP_CODE_OK)
   {
     if (_bufferOverflow)
@@ -1737,15 +1775,15 @@ String FirebaseData::errorReason()
       _httpCode = FIREBASE_ERROR_PATH_NOT_EXIST;
   }
 
-  Firebase.errorToString(_httpCode, buf);
-
-  if (strlen(_firebaseError) > 0)
+  char *e = Firebase.errorToString(_httpCode);
+  String res = e;
+  delete[] e;
+  if (_firebaseError !="")
   {
-    strcat(buf, ", ");
-    strcat(buf, _firebaseError);
+    res += ", ";
+    res += _firebaseError;
   }
-
-  return buf;
+  return res;
 }
 
 int FirebaseData::httpCode()
@@ -1753,12 +1791,6 @@ int FirebaseData::httpCode()
   return _httpCode;
 }
 
-void FirebaseData::strCopy_T(char *buf, uint16_t index, bool empty, uint16_t size)
-{
-  if (empty)
-    memset(buf, 0, size);
-  strcat_P(buf, (char *)pgm_read_word(&(string_table[index])));
-}
 
 QueryFilter::QueryFilter()
 {
@@ -1772,113 +1804,82 @@ QueryFilter::~QueryFilter()
 
 void QueryFilter::end()
 {
-  if (_orderBy)
-    delete[] _orderBy;
-
-  if (_limitToFirst)
-    delete[] _limitToFirst;
-
-  if (_limitToFirst)
-    delete[] _limitToFirst;
-
-  if (_limitToLast)
-    delete[] _limitToLast;
-
-  if (_startAt)
-    delete[] _startAt;
-
-  if (_endAt)
-    delete[] _endAt;
-
-  if (_equalTo)
-    delete[] _equalTo;
+ clearQuery();
 }
 
 void QueryFilter::clearQuery()
 {
-
-  if (_orderBy)
-    memset(_orderBy, 0, QUERY_ORDERBY_LENGTH);
-
-  if (_limitToFirst)
-    memset(_limitToFirst, 0, QUERY_LIMITTOFIRST_LENGTH);
-
-  if (_limitToLast)
-    memset(_limitToLast, 0, QUERY_LIMITTOLAST_LENGTH);
-
-  if (_startAt)
-    memset(_startAt, 0, QUERY_STARTAT_LENGTH);
-
-  if (_endAt)
-    memset(_endAt, 0, QUERY_ENDAT_LENGTH);
-
-  if (_equalTo)
-    memset(_equalTo, 0, QUERY_EQUALTO_LENGTH);
+  _orderBy="";
+  _limitToFirst="";
+  _limitToLast="";
+  _limitToLast="";
+  _startAt="";
+  _endAt="";
+  _equalTo="";
 }
 
 void QueryFilter::orderBy(const String &val)
 {
-  strCopy_T(_orderBy, 3, true, QUERY_ORDERBY_LENGTH);
-  strcat(_orderBy, val.c_str());
-  strCopy_T(_orderBy, 3);
+  _orderBy = "\"";
+  _orderBy += val;
+  _orderBy += "\"";
 }
 void QueryFilter::limitToFirst(int val)
 {
-  memset(_limitToFirst, 0, QUERY_LIMITTOFIRST_LENGTH);
-  itoa(val, _limitToFirst, 10);
+  char *t = Firebase.getIntString(val);
+  _limitToFirst = t;
+  Firebase.delPtr(t);
 }
 
 void QueryFilter::limitToLast(int val)
 {
-  memset(_limitToFirst, 0, QUERY_LIMITTOLAST_LENGTH);
-  itoa(val, _limitToLast, 10);
+  char *t = Firebase.getIntString(val);
+  _limitToLast = t;
+  Firebase.delPtr(t);
 }
 
 void QueryFilter::startAt(int val)
 {
-  memset(_startAt, 0, QUERY_STARTAT_LENGTH);
-  itoa(val, _startAt, 10);
+  char *t = Firebase.getIntString(val);
+  _startAt = t;
+  Firebase.delPtr(t);
 }
 
 void QueryFilter::endAt(int val)
 {
-  memset(_endAt, 0, QUERY_ENDAT_LENGTH);
-  itoa(val, _endAt, 10);
+ char *t = Firebase.getIntString(val);
+  _endAt = t;
+  Firebase.delPtr(t);
 }
 
 void QueryFilter::startAt(const String &val)
 {
-  strCopy_T(_startAt, 3, true, QUERY_STARTAT_LENGTH);
-  strcat(_startAt, val.c_str());
-  strCopy_T(_startAt, 3);
+  _startAt = "\"";
+  _startAt += val;
+  _startAt += "\"";
 }
 
 void QueryFilter::endAt(const String &val)
 {
-  strCopy_T(_endAt, 3, true, QUERY_ENDAT_LENGTH);
-  strcat(_endAt, val.c_str());
-  strCopy_T(_endAt, 3);
+  _endAt = "\"";
+  _endAt += val;
+  _endAt += "\"";
 }
 
 void QueryFilter::equalTo(int val)
 {
-  memset(_equalTo, 0, QUERY_EQUALTO_LENGTH);
-  itoa(val, _equalTo, 10);
+ char *t = Firebase.getIntString(val);
+  _equalTo = t;
+  Firebase.delPtr(t);
 }
 
 void QueryFilter::equalTo(const String &val)
 {
-  strCopy_T(_equalTo, 3, QUERY_EQUALTO_LENGTH);
-  strcat(_equalTo, val.c_str());
-  strCopy_T(_equalTo, 3);
+  _equalTo = "\"";
+  _equalTo += val;
+  _equalTo += "\"";
 }
 
-void QueryFilter::strCopy_T(char *buf, uint16_t index, bool empty, uint16_t size)
-{
-  if (empty)
-    memset(buf, 0, size);
-  strcat_P(buf, (char *)pgm_read_word(&(string_table[index])));
-}
 
 Firebase_Arduino_WiFiNINA Firebase = Firebase_Arduino_WiFiNINA();
 

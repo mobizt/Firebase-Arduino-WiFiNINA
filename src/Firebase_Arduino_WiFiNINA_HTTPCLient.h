@@ -1,11 +1,11 @@
 /*
- * HTTP Client Wrapper based on WiFiNINA librarys, version 1.0.0
+ * HTTP Client Wrapper based on WiFiNINA library, version 1.0.1
  *
  * 
  * This library required WiFiNINA Library to be installed.
  * https://github.com/arduino-libraries/WiFiNINA
  * 
- * April 11, 2019
+ * March 5, 2020
  * 
  * 
  * 
@@ -105,7 +105,7 @@ class FirebaseHTTPClient
   protected:
     bool http_connect(void);
     bool http_sendHeader(const char *header);
-    char *_host = new char[_HOST_LENGTH];
+    String _host = "";
     uint16_t _port = 0;
 };
 
