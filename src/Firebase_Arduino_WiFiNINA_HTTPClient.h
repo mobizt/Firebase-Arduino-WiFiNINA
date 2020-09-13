@@ -37,7 +37,9 @@
 #include <Arduino.h>
 #include <SPI.h>
 #include <WiFiNINA.h>
-
+#if __has_include(<WiFiEspAT.h>) || __has_include(<espduino.h>)
+#error WiFi UART bridge was not supported.
+#endif
 
 /// HTTP client errors
 #define HTTPC_ERROR_CONNECTION_REFUSED (-1)
