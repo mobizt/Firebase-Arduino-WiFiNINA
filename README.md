@@ -3,10 +3,15 @@
 
 Google's Firebase Realtime Database Arduino Library for ARM/AVR WIFI Development Boards based on WiFiNINA library, v 1.1.3
 
-This client library provides the most reliable operations for read, store, update Firebase RTDB through REST API.
+This client library provides the most reliable operations for read, store, and update the Firebase RTDB through the REST API.
 
 
 The library supports Arduino NANO 33 IoT, Arduino MKR WiFi 1010, Arduino MKR VIDOR 4000 and Arduino UNO WiFi Rev.2. 
+
+Due to the different of platform's available memory, flash size, and WiFiClient functionalities which required the performance and memory optimization rather than the compatibility viewpoint of the standard Arduino WiFiClient function, the Firebase libraries will be fine tuned for different WiFi capable platforms.
+
+Other WiFi-Serial bridge libraries and similar firmware that claim to be working with WiFi are not highly recommended due to lack of required functions based on the core SSL/TLS provider.
+
 
 For Espressif MCUs, please try [ESP8266 Firebase Arduino library]( https://github.com/mobizt/Firebase-ESP8266) and [ESP32 Firebase Arduino library]( https://github.com/mobizt/Firebase-ESP32)
 
