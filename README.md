@@ -59,7 +59,7 @@ This following devices were tested and work well.
 
 * Supports integer, float, boolean, string and JSON string data types.
 
-  For JSON string data type, parsing as an object required external JSON parser library e.g. [**ArduinoJson**](https://github.com/bblanchon/ArduinoJson).
+  For JSON string data type, parsing as an object required external JSON parser library e.g. [**Arduino_JSON**](https://github.com/arduino-libraries/Arduino_JSON).
 
 * Supports **automatic stream resuming** when the stream connection was timeout. 
 
