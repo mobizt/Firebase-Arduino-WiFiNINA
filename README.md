@@ -113,7 +113,7 @@ FirebaseData firebaseData;
 
 //3. Setup Firebase credential in setup()
 
-Firebase.begin("yout_project_id.firebaseio.com", "your_Firebase_database_secret", "your_wifi_ssid", "your_wifi_password");
+Firebase.begin("your_project_id.firebaseio.com", "your_Firebase_database_secret", "your_wifi_ssid", "your_wifi_password");
 
 //4. Optional, set AP reconnection in setup()
 
@@ -163,7 +163,7 @@ Here is the example usage to read integer value from defined database path "/tes
 
     //Make sure payload value returned from server is integer
     //This prevent you to get garbage data
-    if (firebaseData.dataType() == "int")) {
+    if (firebaseData.dataType() == "int") {
       val = firebaseData.intData();
       Serial.println(val);
     }
