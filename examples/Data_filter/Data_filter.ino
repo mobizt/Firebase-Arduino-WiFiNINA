@@ -5,7 +5,7 @@
  * 
  * Github: https://github.com/mobizt
  * 
- * Copyright (c) 2019 mobizt
+ * Copyright (c) 2021 mobizt
  *
 */
 
@@ -15,13 +15,14 @@
 
 #include "Firebase_Arduino_WiFiNINA.h"
 
-#define FIREBASE_HOST "YOUR_FIREBASE_PROJECT.firebaseio.com"
-#define FIREBASE_AUTH "YOUR_FIREBASE_DATABASE_SECRET"
+#define DATABASE_URL "URL" //<databaseName>.firebaseio.com or <databaseName>.<region>.firebasedatabase.app
+#define DATABASE_SECRET "FIREBASE_DATABASE_SECRET"
+
 #define WIFI_SSID "YOUR_WIFI_AP"
 #define WIFI_PASSWORD "YOUR_WIFI_PASSWORD"
 
 //Define Firebase Data object
-FirebaseData firebaseData;
+FirebaseData fbdo;
 
 void setup()
 {
@@ -36,7 +37,7 @@ void setup()
   {
     status = WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
     Serial.print(".");
-    delay(300);
+    delay(100);
   }
   Serial.println();
   Serial.print("Connected with IP: ");
@@ -44,35 +45,30 @@ void setup()
   Serial.println();
 
   //Provide the autntication data
-  Firebase.begin(FIREBASE_HOST, FIREBASE_AUTH, WIFI_SSID, WIFI_PASSWORD);
+  Firebase.begin(DATABASE_URL, DATABASE_SECRET, WIFI_SSID, WIFI_PASSWORD);
   Firebase.reconnectWiFi(true);
 
   String jsonStr = "";
 
-  Serial.println("------------------------------------");
-  Serial.println("Push JSON test...");
-
   for (uint8_t i = 0; i < 30; i++)
   {
+    Serial.print("Push json... ");
 
-    jsonStr = "{\"Data1\":" + String(i + 1) + ",\"Data2\":\"" + String(i + 100) + "\"}";
+    jsonStr = "{\"data1\":" + String(i + 1) + ",\"data2\":\"" + String(i + 100) + "\"}";
 
-    if (Firebase.pushJSON(firebaseData, "/Test/Int", jsonStr))
+    if (Firebase.pushJSON(fbdo, "/test/int", jsonStr))
     {
-      Serial.println("PASSED");
-      Serial.println("PATH: " + firebaseData.dataPath());
-      Serial.print("PUSH NAME: ");
-      Serial.println(firebaseData.pushName());
-      Serial.println("------------------------------------");
-      Serial.println();
+      Serial.println("ok");
+      Serial.println("path: " + fbdo.dataPath());
+      Serial.print("push name: ");
+      Serial.println(fbdo.pushName());
     }
     else
     {
-      Serial.println("FAILED");
-      Serial.println("REASON: " + firebaseData.errorReason());
-      Serial.println("------------------------------------");
-      Serial.println();
+      Serial.println("error, " + fbdo.errorReason());
     }
+
+    Serial.println();
   }
 
   QueryFilter query;
@@ -81,8 +77,8 @@ void setup()
   query.clearQuery();
 
 
-  query.orderBy("Data2");
-  //query.orderBy("Data1");
+  query.orderBy("data2");
+  //query.orderBy("data1");
   query.startAt("110");
   //query.startAt(5);
   query.endAt("115");
@@ -100,35 +96,29 @@ void setup()
     ...
     ,
 
-    "Test":{
-      "Int":{
-        ".indexOn":"Data2"
-        //".indexOn":"Data1"
+    "test":{
+      "int":{
+        ".indexOn":"data2"
+        //".indexOn":"data1"
       }
-    }
     }
 
   */
 
-  Serial.println("------------------------------------");
-  Serial.println("Data Filtering test...");
+  Serial.print("Data filtering... ");
 
-  if (Firebase.getJSON(firebaseData, "/Test/Int", query))
+  if (Firebase.getJSON(fbdo, "/test/int", query))
   {
 
-    Serial.println("PASSED");
-    Serial.println("JSON DATA: ");
-    Serial.println(firebaseData.jsonData());
-    Serial.println("------------------------------------");
-    Serial.println();
+    Serial.println("ok");
+    Serial.println(fbdo.jsonData());
   }
   else
   {
-    Serial.println("FAILED");
-    Serial.println("REASON: " + firebaseData.errorReason());
-    Serial.println("------------------------------------");
-    Serial.println();
+    Serial.println("error, " + fbdo.errorReason());
   }
+
+  Serial.println();
 
   //Release memory used by query object
   query.end();

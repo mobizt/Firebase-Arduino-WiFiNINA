@@ -5,11 +5,9 @@
  * 
  * Github: https://github.com/mobizt
  * 
- * Copyright (c) 2019 mobizt
+ * Copyright (c) 2021 mobizt
  *
 */
-
-
 
 //Example shows how to connect to Firebase RTDB and get stream connection
 
@@ -17,19 +15,22 @@
 
 #include "Firebase_Arduino_WiFiNINA.h"
 
-#define FIREBASE_HOST "YOUR_FIREBASE_PROJECT.firebaseio.com"
-#define FIREBASE_AUTH "YOUR_FIREBASE_DATABASE_SECRET"
+#define DATABASE_URL "URL" //<databaseName>.firebaseio.com or <databaseName>.<region>.firebasedatabase.app
+#define DATABASE_SECRET "FIREBASE_DATABASE_SECRET"
+
 #define WIFI_SSID "YOUR_WIFI_AP"
 #define WIFI_PASSWORD "YOUR_WIFI_PASSWORD"
 
 //Define Firebase data object
-FirebaseData firebaseData;
+FirebaseData fbdo;
+
+FirebaseData stream;
 
 unsigned long sendDataPrevMillis = 0;
 
-String path = "/WiFiNiNa_Test/Stream";
+String path = "/test/stream";
 
-uint16_t count = 0;
+int count = 0;
 
 void setup()
 {
@@ -44,21 +45,20 @@ void setup()
   {
     status = WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
     Serial.print(".");
-    delay(300);
+    delay(100);
   }
   Serial.println();
   Serial.print("Connected with IP: ");
   Serial.println(WiFi.localIP());
   Serial.println();
-  
+
   //Provide the autntication data
-  Firebase.begin(FIREBASE_HOST, FIREBASE_AUTH, WIFI_SSID, WIFI_PASSWORD);
+  Firebase.begin(DATABASE_URL, DATABASE_SECRET, WIFI_SSID, WIFI_PASSWORD);
   Firebase.reconnectWiFi(true);
 
-  if (!Firebase.beginStream(firebaseData, path))
+  if (!Firebase.beginStream(stream, path))
   {
-    Serial.println("------Can't begin stream connection------");
-    Serial.println("REASON: " + firebaseData.errorReason());
+    Serial.println("Can't connect stream, " + stream.errorReason());
     Serial.println();
   }
 }
@@ -66,70 +66,85 @@ void setup()
 void loop()
 {
 
-  if (millis() - sendDataPrevMillis > 15000)
+  if (millis() - sendDataPrevMillis > 15000 || sendDataPrevMillis == 0)
   {
     sendDataPrevMillis = millis();
     count++;
 
-    if (Firebase.setString(firebaseData, path + "/String", "Hello World! " + String(count)))
+    Serial.print("Set string... ");
+
+    if (Firebase.setString(fbdo, path + "/string", "Hello World! " + String(count)))
     {
-      Serial.println("----------Set result-----------");
-      Serial.println("PATH: " + firebaseData.dataPath());
-      Serial.println("TYPE: " + firebaseData.dataType());
-      Serial.print("VALUE: ");
-      if (firebaseData.dataType() == "int")
-        Serial.println(firebaseData.intData());
-      else if (firebaseData.dataType() == "float")
-        Serial.println(firebaseData.floatData());
-      else if (firebaseData.dataType() == "boolean")
-        Serial.println(firebaseData.boolData() == 1 ? "true" : "false");
-      else if (firebaseData.dataType() == "string")
-        Serial.println(firebaseData.stringData());
-      else if (firebaseData.dataType() == "json")
-        Serial.println(firebaseData.jsonData());
-      Serial.println("--------------------------------");
-      Serial.println();
+      Serial.println("ok");
+      Serial.println("path: " + fbdo.dataPath());
+      Serial.println("type: " + fbdo.dataType());
+      Serial.print("value: ");
+      if (fbdo.dataType() == "int")
+        Serial.println(fbdo.intData());
+      if (fbdo.dataType() == "int64")
+        Serial.println(fbdo.int64Data());
+      if (fbdo.dataType() == "uint64")
+        Serial.println(fbdo.uint64Data());
+      else if (fbdo.dataType() == "double")
+        Serial.println(fbdo.doubleData());
+      else if (fbdo.dataType() == "float")
+        Serial.println(fbdo.floatData());
+      else if (fbdo.dataType() == "boolean")
+        Serial.println(fbdo.boolData() == 1 ? "true" : "false");
+      else if (fbdo.dataType() == "string")
+        Serial.println(fbdo.stringData());
+      else if (fbdo.dataType() == "json")
+        Serial.println(fbdo.jsonData());
+      else if (fbdo.dataType() == "array")
+        Serial.println(fbdo.arrayData());
     }
     else
     {
-      Serial.println("----------Can't set data--------");
-      Serial.println("REASON: " + firebaseData.errorReason());
-      Serial.println("--------------------------------");
-      Serial.println();
+      Serial.println("error, "+ fbdo.errorReason());
     }
-  }
-
-  if (!Firebase.readStream(firebaseData))
-  {
-    Serial.println("Can't read stream data");
-    Serial.println("REASON: " + firebaseData.errorReason());
     Serial.println();
   }
 
-  if (firebaseData.streamTimeout())
+  if (!Firebase.readStream(stream))
   {
-    Serial.println("Stream timeout, resume streaming...");
-    Serial.println();
+    Serial.println("Can't read stream, "+ stream.errorReason());
   }
 
-  if (firebaseData.streamAvailable())
+  if (stream.streamTimeout())
   {
-    Serial.println("-------Stream Data available-------");
-    Serial.println("STREAM PATH: " + firebaseData.streamPath());
-    Serial.println("EVENT PATH: " + firebaseData.dataPath());
-    Serial.println("DATA TYPE: " + firebaseData.dataType());
-    Serial.println("EVENT TYPE: " + firebaseData.eventType());
-    Serial.print("VALUE: ");
-    if (firebaseData.dataType() == "int")
-      Serial.println(firebaseData.intData());
-    else if (firebaseData.dataType() == "float")
-      Serial.println(firebaseData.floatData());
-    else if (firebaseData.dataType() == "boolean")
-      Serial.println(firebaseData.boolData() == 1 ? "true" : "false");
-    else if (firebaseData.dataType() == "string")
-      Serial.println(firebaseData.stringData());
-    else if (firebaseData.dataType() == "json")
-      Serial.println(firebaseData.jsonData());
+    Serial.println("Stream timed out, resuming...");
+  }
+
+  if (stream.streamAvailable())
+  {
+    count++;
+    if (stream.dataType() == "null")
+      count = 0;
+
+    Serial.println("Stream data received... ");
+    Serial.println("stream path: " + stream.streamPath());
+    Serial.println("event path: " + stream.dataPath());
+    Serial.println("data type: " + stream.dataType());
+    Serial.println("event type: " + stream.eventType());
+    Serial.print("value: ");
+    if (stream.dataType() == "int")
+      Serial.println(stream.intData());
+    if (stream.dataType() == "int64")
+      Serial.println(stream.int64Data());
+    if (stream.dataType() == "uint64")
+      Serial.println(stream.uint64Data());
+    else if (stream.dataType() == "double")
+      Serial.println(stream.doubleData());
+    else if (stream.dataType() == "float")
+      Serial.println(stream.floatData());
+    else if (stream.dataType() == "boolean")
+      Serial.println(stream.boolData() == 1 ? "true" : "false");
+    else if (stream.dataType() == "string")
+      Serial.println(stream.stringData());
+    else if (stream.dataType() == "json")
+      Serial.println(stream.jsonData());
+    else if (stream.dataType() == "array")
+      Serial.println(stream.arrayData());
     Serial.println();
   }
 }

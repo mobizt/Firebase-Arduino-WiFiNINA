@@ -5,11 +5,9 @@
  * 
  * Github: https://github.com/mobizt
  * 
- * Copyright (c) 2019 mobizt
+ * Copyright (c) 2021 mobizt
  *
 */
-
-
 
 //Example shows how to connect to Firebase RTDB and perform basic operation for set, get, push and update data to database
 
@@ -17,13 +15,13 @@
 
 #include "Firebase_Arduino_WiFiNINA.h"
 
-#define FIREBASE_HOST "YOUR_FIREBASE_PROJECT.firebaseio.com"
-#define FIREBASE_AUTH "YOUR_FIREBASE_DATABASE_SECRET"
+#define DATABASE_URL "URL" //<databaseName>.firebaseio.com or <databaseName>.<region>.firebasedatabase.app
+#define DATABASE_SECRET "FIREBASE_DATABASE_SECRET"
 #define WIFI_SSID "YOUR_WIFI_AP"
 #define WIFI_PASSWORD "YOUR_WIFI_PASSWORD"
 
 //Define Firebase data object
-FirebaseData firebaseData;
+FirebaseData fbdo;
 
 void setup()
 {
@@ -38,7 +36,7 @@ void setup()
   {
     status = WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
     Serial.print(".");
-    delay(300);
+    delay(100);
   }
   Serial.println();
   Serial.print("Connected with IP: ");
@@ -46,170 +44,150 @@ void setup()
   Serial.println();
 
   //Provide the autntication data
-  Firebase.begin(FIREBASE_HOST, FIREBASE_AUTH, WIFI_SSID, WIFI_PASSWORD);
+  Firebase.begin(DATABASE_URL, DATABASE_SECRET, WIFI_SSID, WIFI_PASSWORD);
   Firebase.reconnectWiFi(true);
 
-  String path = "/UNO_WiFi_REV2_Test";
+  String path = "/test";
   String jsonStr;
 
-  Serial.println("-----------------------------------");
-  Serial.println("----------Begin Set Test-----------");
-  Serial.println("-----------------------------------");
+  Serial.print("Set int... ");
+
+  unsigned long long val = 1634631042000;
+
+  if (Firebase.setInt(fbdo, path + "/int/data", val)) //support large number
+  {
+    Serial.println("ok");
+    Serial.println("path: " + fbdo.dataPath());
+    Serial.println("type: " + fbdo.dataType());
+    Serial.print("value: ");
+    if (fbdo.dataType() == "int")
+      Serial.println(fbdo.intData());
+    if (fbdo.dataType() == "int64")
+      Serial.println(fbdo.int64Data());
+    if (fbdo.dataType() == "uint64")
+      Serial.println(fbdo.uint64Data());
+    else if (fbdo.dataType() == "double")
+      Serial.println(fbdo.doubleData());
+    else if (fbdo.dataType() == "float")
+      Serial.println(fbdo.floatData());
+    else if (fbdo.dataType() == "boolean")
+      Serial.println(fbdo.boolData() == 1 ? "true" : "false");
+    else if (fbdo.dataType() == "string")
+      Serial.println(fbdo.stringData());
+    else if (fbdo.dataType() == "json")
+      Serial.println(fbdo.jsonData());
+    else if (fbdo.dataType() == "array")
+      Serial.println(fbdo.arrayData());
+  }
+  else
+  {
+    Serial.println("error, " + fbdo.errorReason());
+  }
+
   Serial.println();
 
-  for (uint8_t i = 0; i < 10; i++)
-  {
+  Serial.print("Get int... ");
 
-    if (Firebase.setInt(firebaseData, path + "/Int/Data" + (i + 1), (i + 1) * 10))
-    {
-      Serial.println("----------Set result-----------");
-      Serial.println("PATH: " + firebaseData.dataPath());
-      Serial.println("TYPE: " + firebaseData.dataType());
-      Serial.print("VALUE: ");
-      if (firebaseData.dataType() == "int")
-        Serial.println(firebaseData.intData());
-      else if (firebaseData.dataType() == "float")
-        Serial.println(firebaseData.floatData());
-      else if (firebaseData.dataType() == "boolean")
-        Serial.println(firebaseData.boolData() == 1 ? "true" : "false");
-      else if (firebaseData.dataType() == "string")
-        Serial.println(firebaseData.stringData());
-      else if (firebaseData.dataType() == "json")
-        Serial.println(firebaseData.jsonData());
-      Serial.println("--------------------------------");
-      Serial.println();
-    }
-    else
-    {
-      Serial.println("----------Can't set data--------");
-      Serial.println("REASON: " + firebaseData.errorReason());
-      Serial.println("--------------------------------");
-      Serial.println();
-    }
+  if (Firebase.getInt(fbdo, path + "/int/data"))
+  {
+    Serial.println("ok");
+    Serial.println("path: " + fbdo.dataPath());
+    Serial.println("type: " + fbdo.dataType());
+    Serial.print("value: ");
+    if (fbdo.dataType() == "int")
+      Serial.println(fbdo.intData());
+    if (fbdo.dataType() == "int64")
+      Serial.println(fbdo.int64Data());
+    if (fbdo.dataType() == "uint64")
+      Serial.println(fbdo.uint64Data());
+    else if (fbdo.dataType() == "double")
+      Serial.println(fbdo.doubleData());
+    else if (fbdo.dataType() == "float")
+      Serial.println(fbdo.floatData());
+    else if (fbdo.dataType() == "boolean")
+      Serial.println(fbdo.boolData() == 1 ? "true" : "false");
+    else if (fbdo.dataType() == "string")
+      Serial.println(fbdo.stringData());
+    else if (fbdo.dataType() == "json")
+      Serial.println(fbdo.jsonData());
+    else if (fbdo.dataType() == "array")
+      Serial.println(fbdo.arrayData());
+  }
+  else
+  {
+    Serial.println("error, " + fbdo.errorReason());
   }
 
-  Serial.println("-----------------------------------");
-  Serial.println("----------Begin Get Test-----------");
-  Serial.println("-----------------------------------");
   Serial.println();
 
-  for (uint8_t i = 0; i < 10; i++)
-  {
+  Serial.print("Push double... ");
 
-    if (Firebase.getInt(firebaseData, path + "/Int/Data" + (i + 1)))
-    {
-      Serial.println("----------Get result-----------");
-      Serial.println("PATH: " + firebaseData.dataPath());
-      Serial.println("TYPE: " + firebaseData.dataType());
-      Serial.print("VALUE: ");
-      if (firebaseData.dataType() == "int")
-        Serial.println(firebaseData.intData());
-      else if (firebaseData.dataType() == "float")
-        Serial.println(firebaseData.floatData());
-      else if (firebaseData.dataType() == "boolean")
-        Serial.println(firebaseData.boolData() == 1 ? "true" : "false");
-      else if (firebaseData.dataType() == "string")
-        Serial.println(firebaseData.stringData());
-      else if (firebaseData.dataType() == "json")
-        Serial.println(firebaseData.jsonData());
-      Serial.println("--------------------------------");
-      Serial.println();
-    }
-    else
-    {
-      Serial.println("----------Can't get data--------");
-      Serial.println("REASON: " + firebaseData.errorReason());
-      Serial.println("--------------------------------");
-      Serial.println();
-    }
+  if (Firebase.pushDouble(fbdo, path + "/push/double", 1234.56789))
+  {
+    Serial.println("ok");
+    Serial.println("path: " + fbdo.dataPath());
+    Serial.print("push name: ");
+    Serial.println(fbdo.pushName());
+  }
+  else
+  {
+    Serial.println("error, " + fbdo.errorReason());
   }
 
-  Serial.println("-----------------------------------");
-  Serial.println("----------Begin Push Test----------");
-  Serial.println("-----------------------------------");
   Serial.println();
 
-  for (uint8_t i = 0; i < 5; i++)
-  {
+  Serial.print("Push json... ");
 
-    if (Firebase.pushInt(firebaseData, path + "/Push/Int", (i + 1)))
-    {
-      Serial.println("----------Push result-----------");
-      Serial.println("PATH: " + firebaseData.dataPath());
-      Serial.print("PUSH NAME: ");
-      Serial.println(firebaseData.pushName());
-      Serial.println("--------------------------------");
-      Serial.println();
-    }
-    else
-    {
-      Serial.println("----------Can't push data--------");
-      Serial.println("REASON: " + firebaseData.errorReason());
-      Serial.println("--------------------------------");
-      Serial.println();
-    }
+  jsonStr = "{\"title\":{\"index\":0,\"text\":{\"us\":\"abc\"},\"ts\":{\".sv\":\"timestamp\"}}}";
+
+  if (Firebase.pushJSON(fbdo, path + "/push/json", jsonStr))
+  {
+    Serial.println("ok");
+    Serial.println("path: " + fbdo.dataPath());
+    Serial.print("push name: ");
+    Serial.println(fbdo.pushName());
+  }
+  else
+  {
+    Serial.println("error, " + fbdo.errorReason());
   }
 
-  for (uint8_t i = 5; i < 10; i++)
-  {
-
-    jsonStr = "{\"Data" + String(i + 1) + "\":" + String(i + 1) + "}";
-
-    if (Firebase.pushJSON(firebaseData, path + "/Push/Int", jsonStr))
-    {
-      Serial.println("----------Push result-----------");
-      Serial.println("PATH: " + firebaseData.dataPath());
-      Serial.print("PUSH NAME: ");
-      Serial.println(firebaseData.pushName());
-      Serial.println("--------------------------------");
-      Serial.println();
-    }
-    else
-    {
-      Serial.println("----------Can't push data--------");
-      Serial.println("REASON: " + firebaseData.errorReason());
-      Serial.println("--------------------------------");
-      Serial.println();
-    }
-  }
-
-  Serial.println("-----------------------------------");
-  Serial.println("---------Begin Update Test----------");
-  Serial.println("-----------------------------------");
   Serial.println();
 
-  for (uint8_t i = 0; i < 5; i++)
+  Serial.print("Update node... ");
+
+  jsonStr = "{\"jp\":\"def\",\"sg\":\"ghi\"}";
+
+  if (Firebase.updateNode(fbdo, path + "/push/json/" + fbdo.pushName() + "/title/text", jsonStr))
   {
-
-    jsonStr = "{\"Data" + String(i + 1) + "\":" + String(i + 5.5) + "}";
-
-    if (Firebase.updateNode(firebaseData, path + "/Int", jsonStr))
-    {
-      Serial.println("----------Update result-----------");
-      Serial.println("PATH: " + firebaseData.dataPath());
-      Serial.println("TYPE: " + firebaseData.dataType());
-      Serial.print("VALUE: ");
-      if (firebaseData.dataType() == "int")
-        Serial.println(firebaseData.intData());
-      else if (firebaseData.dataType() == "float")
-        Serial.println(firebaseData.floatData());
-      else if (firebaseData.dataType() == "boolean")
-        Serial.println(firebaseData.boolData() == 1 ? "true" : "false");
-      else if (firebaseData.dataType() == "string")
-        Serial.println(firebaseData.stringData());
-      else if (firebaseData.dataType() == "json")
-        Serial.println(firebaseData.jsonData());
-      Serial.println("--------------------------------");
-      Serial.println();
-    }
-    else
-    {
-      Serial.println("----------Can't Update data--------");
-      Serial.println("REASON: " + firebaseData.errorReason());
-      Serial.println("--------------------------------");
-      Serial.println();
-    }
+    Serial.println("ok");
+    Serial.println("path: " + fbdo.dataPath());
+    Serial.println("type: " + fbdo.dataType());
+    Serial.print("value: ");
+    if (fbdo.dataType() == "int")
+      Serial.println(fbdo.intData());
+    if (fbdo.dataType() == "int64")
+      Serial.println(fbdo.int64Data());
+    if (fbdo.dataType() == "uint64")
+      Serial.println(fbdo.uint64Data());
+    else if (fbdo.dataType() == "double")
+      Serial.println(fbdo.doubleData());
+    else if (fbdo.dataType() == "float")
+      Serial.println(fbdo.floatData());
+    else if (fbdo.dataType() == "boolean")
+      Serial.println(fbdo.boolData() == 1 ? "true" : "false");
+    else if (fbdo.dataType() == "string")
+      Serial.println(fbdo.stringData());
+    else if (fbdo.dataType() == "json")
+      Serial.println(fbdo.jsonData());
+    else if (fbdo.dataType() == "array")
+      Serial.println(fbdo.arrayData());
   }
+  else
+  {
+    Serial.println("error, " + fbdo.errorReason());
+  }
+  Serial.println();
 }
 
 void loop()
