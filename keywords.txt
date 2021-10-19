@@ -54,10 +54,13 @@ streamPath	KEYWORD2
 dataPath	KEYWORD2
 errorReason	KEYWORD2
 intData	KEYWORD2
+int64Data   KEYWORD2
+uint64Data  KEYWORD2
 floatData	KEYWORD2
 boolData	KEYWORD2
 stringData	KEYWORD2
 jsonData	KEYWORD2
+arrayData   KEYWORD2
 pushName	KEYWORD2
 isStream	KEYWORD2
 httpConnected	KEYWORD2

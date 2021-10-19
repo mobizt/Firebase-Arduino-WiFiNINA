@@ -436,8 +436,11 @@ public:
      * Call <firebase data object>.intData, <firebase data object>.int64Data or
      * <firebase data object>.uint64Data will return the integer value of payload returned from server.
      * 
-     * If the payload returned from server is not integer or float type, 
+     * If the payload returned from server is not integer, float or double type, 
      * the function <firebase data object>.intData will return zero (0).
+     * 
+     * If the payload returned from server is float or double type, 
+     * the function <firebase data object>.intData will return rounded integer value.
     */
     bool getInt(FirebaseData &fbdo, const String &path);
 
