@@ -1,8 +1,8 @@
 /**
- * Firebase.h, version 1.0.0
+ * Firebase.h, version 1.0.1
  * 
  * 
- * Created: October 19, 2021
+ * Created: October 20, 2021
  * 
  * This library provides ARM/AVR WIFI Development Boards to perform REST API by GET PUT, POST, PATCH, DELETE data from/to with Google's Firebase database using get, set, update
  * and delete calls.
@@ -153,7 +153,7 @@ const char C_STR_99[] PROGMEM = "&startAt=";
 const char C_STR_100[] PROGMEM = "&endAt=";
 const char C_STR_101[] PROGMEM = "&equalTo=";
 const char C_STR_102[] PROGMEM = "\"error\" : ";
-
+const char C_STR_103[] PROGMEM = "array";
 class FirebaseData;
 class Firebase_Class;
 
@@ -291,6 +291,18 @@ public:
     bool pushJSON(FirebaseData &fbdo, const String &path, const String &jsonString);
 
     /**
+     * Append new child nodes's key and value (using JSON array data) to the defined database path.
+     * @param fbdo Firebase Data Object.
+     * @param path Target database path which key and value in JSON data will be appended.
+     * @param arrayString The appended JSON array string (should be valid JSON array data).
+     * @return Boolean type status indicates the success of operation.
+     * 
+     * The new appended node's key will be stored in Firebase Data object,
+     * which its value can be accessed via function <firebase data object>.pushName().
+    */
+    bool pushArray(FirebaseData &fbdo, const String &path, const String &arrayString);
+
+    /**
      * Append new Firebase server's timestamp to the defined database path.
      * @param fbdo Firebase Data Object.
      * @param path Target database path which timestamp will be appended.
@@ -390,6 +402,22 @@ public:
     bool setJSON(FirebaseData &fbdo, const String &path, const String &jsonString);
 
     /**
+     * Set child nodes's key and value (using JSON array data) to the defined database path.
+     * 
+     * This will replace any child nodes inside the defined path with node' s key and value defined in JSON array data.
+     * 
+     * @param fbdo Firebase Data Object.
+     * @param path Target database path which key and value in JSON data will be replaced or set.
+     * @param arrayString The JSON string to set (should be valid JSON array data).
+     * @return Boolean type status indicates the success of operation.
+     * 
+     * Call <firebase data object>.dataType to determine what type of data that successfully stores in database.
+     * 
+     * Call <firebase data object>.arrayData or  <firebase data object>.jsonData will return the JSON array string value of payload returned from server.
+    */
+    bool setArray(FirebaseData &fbdo, const String &path, const String &arrayString);
+
+    /**
      * Set Firebase server's timestamp to the defined database path.
      * @param fbdo Firebase Data Object.
      * @param path Target database path which timestamp will be set.
@@ -424,6 +452,17 @@ public:
      * Owing to the objective of this function to reduce the netwok data usage, no payload will be returned from server.
     */
     bool updateNodeSilent(FirebaseData &fbdo, const String &path, const String &jsonString);
+
+    /**
+     * Read the value at the defined database path.
+     * The returned payload JSON string represents the child nodes and their value.
+     * @param fbdo Firebase Data Object.
+     * @param path Database path which the string value is being read.
+     * @return Boolean type status indicates the success of operation.
+     * Call <firebase data object>.dataType to determine what type of data that successfully
+     * stores in database.
+    */
+    bool get(FirebaseData &fbdo, const String &path);
 
     /**
      * Read the int value at the defined database path.
@@ -522,7 +561,7 @@ public:
      * Call <firebase data object>.jsonData will return the JSON string value of
      * payload returned from server.
      * 
-     * If the payload returned from server is not json type,
+     * If the payload returned from server is not json or array type,
      * the function <firebase data object>.jsonData will return empty string (String object).
     */
     bool getJSON(FirebaseData &fbdo, const String &path);
@@ -554,12 +593,32 @@ public:
      * 
      * Call <firebase data object>.jsonData will return the JSON string value of payload returned from server.
      * 
-     * If the payload returned from server is not json type, 
+     * If the payload returned from server is not json or array type, 
      * the function <firebase data object>.jsonData will return empty string (String object).
      * 
      * <firebase data object>.jsonData will return null when the filtered data is empty.
     */
     bool getJSON(FirebaseData &fbdo, const String &path, QueryFilter &query);
+
+    /**
+     * Read the JSON array string at the defined database path.
+     * The returned payload JSON string represents the child nodes and their value.
+     * @param fbdo Firebase Data Object.
+     * @param path Database path which the string value is being read.
+     * @param query QueryFilter class to set query parameters to filter data.
+     * @return Boolean type status indicates the success of operation.
+     * Call <firebase data object>.dataType to determine what type of data that successfully
+     * stores in database.
+     * 
+     * Call <firebase data object>.arrayData will return the JSON array string value of
+     * payload returned from server.
+     * 
+     * If the payload returned from server is not json or array type,
+     * the function <firebase data object>.arrayData will return empty string (String object).
+    */
+    bool getArray(FirebaseData &fbdo, const String &path);
+
+    bool getArray(FirebaseData &fbdo, const String &path, QueryFilter &query);
 
     /**
      * Delete all child nodes at the defined database path.

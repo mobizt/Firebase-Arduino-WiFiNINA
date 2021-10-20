@@ -1,8 +1,8 @@
 /**
- * Firebase.cpp, version 1.0.0
+ * Firebase.cpp, version 1.0.1
  * 
  * 
- * Created: October 19, 2021
+ * Created: October 20, 2021
  * 
  * This library provides ARM/AVR WIFI Development Boards to perform REST API by GET PUT, POST, PATCH, DELETE data from/to with Google's Firebase database using get, set, update
  * and delete calls.
@@ -38,6 +38,7 @@
 
 enum firebase_data_type
 {
+  firebase_data_type_any,
   firebase_data_type_null,
   firebase_data_type_double,
   firebase_data_type_integer,
@@ -110,6 +111,11 @@ bool Firebase_Class::pushJSON(FirebaseData &fbdo, const String &path, const Stri
   return sendRequest(fbdo, path.c_str(), firebase_method_post, firebase_data_type_json, jsonString.c_str());
 }
 
+bool Firebase_Class::pushArray(FirebaseData &fbdo, const String &path, const String &arrayString)
+{
+  return sendRequest(fbdo, path.c_str(), firebase_method_post, firebase_data_type_array, arrayString.c_str());
+}
+
 bool Firebase_Class::pushTimestamp(FirebaseData &fbdo, const String &path)
 {
   char *buf = strP(C_STR_0);
@@ -173,6 +179,11 @@ bool Firebase_Class::setJSON(FirebaseData &fbdo, const String &path, const Strin
   return sendRequest(fbdo, path.c_str(), firebase_method_put, firebase_data_type_json, jsonString.c_str());
 }
 
+bool Firebase_Class::setArray(FirebaseData &fbdo, const String &path, const String &arrayString)
+{
+  return sendRequest(fbdo, path.c_str(), firebase_method_put, firebase_data_type_array, arrayString.c_str());
+}
+
 bool Firebase_Class::setTimestamp(FirebaseData &fbdo, const String &path)
 {
   char *buf = strP(C_STR_0);
@@ -191,6 +202,12 @@ bool Firebase_Class::updateNodeSilent(FirebaseData &fbdo, const String &path, co
   return sendRequest(fbdo, path.c_str(), firebase_method_patch_silent, firebase_data_type_json, jsonString.c_str());
 }
 
+bool Firebase_Class::get(FirebaseData &fbdo, const String &path)
+{
+  fbdo.queryFilter.clearQuery();
+  return sendRequest(fbdo, path.c_str(), firebase_method_get, firebase_data_type_any, "");
+}
+
 bool Firebase_Class::getInt(FirebaseData &fbdo, const String &path)
 {
   fbdo.queryFilter.clearQuery();
@@ -204,7 +221,7 @@ bool Firebase_Class::getFloat(FirebaseData &fbdo, const String &path)
 {
   fbdo.queryFilter.clearQuery();
   bool flag = sendRequest(fbdo, path.c_str(), firebase_method_get, firebase_data_type_float, "");
-  if (fbdo._dataType != firebase_data_type_integer && fbdo._dataType != firebase_data_type_integer64 && fbdo._dataType != firebase_data_type_unsigned_integer64 &&fbdo._dataType != firebase_data_type_double && fbdo._dataType != firebase_data_type_float)
+  if (fbdo._dataType != firebase_data_type_integer && fbdo._dataType != firebase_data_type_integer64 && fbdo._dataType != firebase_data_type_unsigned_integer64 && fbdo._dataType != firebase_data_type_double && fbdo._dataType != firebase_data_type_float)
     flag = false;
   return flag;
 }
@@ -240,7 +257,7 @@ bool Firebase_Class::getJSON(FirebaseData &fbdo, const String &path)
 {
   fbdo.queryFilter.clearQuery();
   bool flag = sendRequest(fbdo, path.c_str(), firebase_method_get, firebase_data_type_json, "");
-  if (fbdo._dataType != firebase_data_type_json)
+  if (fbdo._dataType != firebase_data_type_json && fbdo._dataType != firebase_data_type_array)
     flag = false;
   return flag;
 }
@@ -257,11 +274,31 @@ bool Firebase_Class::getJSON(FirebaseData &fbdo, const String &path, QueryFilter
     fbdo.queryFilter._endAt = query._endAt;
     fbdo.queryFilter._equalTo = query._equalTo;
   }
+  return getJSON(fbdo, path);
+}
 
-  bool flag = sendRequest(fbdo, path.c_str(), firebase_method_get, firebase_data_type_json, "");
-  if (fbdo._dataType != firebase_data_type_json)
+bool Firebase_Class::getArray(FirebaseData &fbdo, const String &path)
+{
+  fbdo.queryFilter.clearQuery();
+  bool flag = sendRequest(fbdo, path.c_str(), firebase_method_get, firebase_data_type_array, "");
+  if (fbdo._dataType != firebase_data_type_array && fbdo._dataType != firebase_data_type_json)
     flag = false;
   return flag;
+}
+
+bool Firebase_Class::getArray(FirebaseData &fbdo, const String &path, QueryFilter &query)
+{
+  fbdo.queryFilter.clearQuery();
+  if (query._orderBy != "")
+  {
+    fbdo.queryFilter._orderBy = query._orderBy;
+    fbdo.queryFilter._limitToFirst = query._limitToFirst;
+    fbdo.queryFilter._limitToLast = query._limitToLast;
+    fbdo.queryFilter._startAt = query._startAt;
+    fbdo.queryFilter._endAt = query._endAt;
+    fbdo.queryFilter._equalTo = query._equalTo;
+  }
+  return getArray(fbdo, path);
 }
 
 bool Firebase_Class::deleteNode(FirebaseData &fbdo, const String path)
@@ -966,7 +1003,7 @@ bool Firebase_Class::getServerResponse(FirebaseData &fbdo)
       bool _n1 = fbdo._dataType == firebase_data_type_float || fbdo._dataType == firebase_data_type_double || fbdo._dataType == firebase_data_type_integer;
       bool _n2 = fbdo._dataType2 == firebase_data_type_float || fbdo._dataType2 == firebase_data_type_double || fbdo._dataType2 == firebase_data_type_integer;
 
-      if (fbdo._dataType2 == fbdo._dataType || (_n1 && _n2))
+      if (fbdo._dataType2 == firebase_data_type_any || fbdo._dataType2 == fbdo._dataType || (_n1 && _n2))
         fbdo._mismatchDataType = false;
       else
         fbdo._mismatchDataType = true;
@@ -1000,6 +1037,7 @@ EXIT_2:
 
   if (fbdo._httpCode == TCP_ERROR_READ_TIMEOUT)
     return false;
+
   return fbdo._httpCode == _HTTP_CODE_OK || fbdo._httpCode == -1000;
 
 EXIT_3:
@@ -1484,10 +1522,10 @@ char *Firebase_Class::errorToString(int httpCode)
     buf = strP(C_STR_67);
     break;
   case TCP_ERROR_READ_TIMEOUT:
-    buf = strP(C_STR_68);
+    buf = strP(C_STR_69);
     break;
   case FIREBASE_ERROR_DATA_TYPE_MISMATCH:
-    buf = strP(C_STR_69);
+    buf = strP(C_STR_70);
     break;
   case FIREBASE_ERROR_PATH_NOT_EXIST:
     buf = strP(C_STR_71);
@@ -1627,6 +1665,8 @@ String FirebaseData::dataType()
   char *buf = nullptr;
   if (_dataType == firebase_data_type_json)
     buf = Firebase.strP(C_STR_74);
+  if (_dataType == firebase_data_type_array)
+    buf = Firebase.strP(C_STR_103);
   else if (_dataType == firebase_data_type_string)
     buf = Firebase.strP(C_STR_75);
   else if (_dataType == firebase_data_type_double)

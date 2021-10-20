@@ -88,7 +88,7 @@ void setup()
 
   Serial.print("Get int... ");
 
-  if (Firebase.getInt(fbdo, path + "/int/data"))
+  if (Firebase.getInt(fbdo, path + "/int/data")) // also can use Firebase.get(fbdo, path)
   {
     Serial.println("ok");
     Serial.println("path: " + fbdo.dataPath());

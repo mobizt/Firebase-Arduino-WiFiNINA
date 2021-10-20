@@ -1,7 +1,7 @@
 # Firebase RTDB Arduino Client for ARM/AVR WIFI Dev Boards
 
 
-Google's Firebase Realtime Database Arduino Library for ARM/AVR WIFI Development Boards based on WiFiNINA library, v 1.2.1
+Google's Firebase Realtime Database Arduino Library for ARM/AVR WIFI Development Boards based on WiFiNINA library, v 1.2.2
 
 This client library provides the most reliable operations for read, store, and update the Firebase RTDB through the REST API.
 
@@ -40,14 +40,11 @@ This following devices were tested and work well.
 
 ## Features
 
+* **Read data** at the defined database path using **get** or specific functions e.g. **getInt**,  **getDouble**, **getFloat**, **getBool**, **getString**, **getJSON** and  **getArray**.
 
-* **Not required fingerprint** or **certificate data** to connect.
+* **Store data** at the defined database path using set functions e.g. **setInt**, **setDouble**, **setFloat**, **setBool**, **setString**, **setJSON** and  **setArray**.
 
-* **Read data** at the defined database path using get functions e.g. **getInt**, **getFloat**, **getBool**, **getString** and **getJSON**.
-
-* **Store data** at the defined database path using set functions e.g. **setInt**, **setFloat**, **setBool**, **setString** and  **setJSON**.
-
-* **Append data** to the defined database path using push functions e.g. **pushInt**, **pushFloat**, **pushBool**,  **pushString** and **pushJSON**.
+* **Append data** to the defined database path using push functions e.g. **pushInt**, **pushFloat**, **pushBool**,  **pushString**, **pushJSON** and **pushArray**.
 
 * **Update data** at the defined database path using **updateNode** and **updateNodeSilent** functions.
 
@@ -74,6 +71,8 @@ This following devices were tested and work well.
 
 
 This library required [WiFiNINA Library](https://github.com/arduino-libraries/WiFiNINA) to be installed which can be installed through **Boards Manager**
+
+Update WiFiNINA firmware and install server SSL certificate, see this [issue #18](https://github.com/mobizt/Firebase-Arduino-WiFiNINA/issues/18) for how to.
 
 
 ## Installing
@@ -109,11 +108,11 @@ Go to menu **Files** -> **Examples** -> **Firebase-Arduino-WiFiNIN A-master** an
 
 //2. Declare the Firebase Data object in global scope
 
-FirebaseData firebaseData;
+FirebaseData fbdo;
 
 //3. Setup Firebase credential in setup()
 
-Firebase.begin("yout_project_id.firebaseio.com", "your_Firebase_database_secret", "your_wifi_ssid", "your_wifi_password");
+Firebase.begin("yout_project_id.firebaseio.com", "database secret", "wifi ssid", "wifi password");
 
 //4. Optional, set AP reconnection in setup()
 
@@ -157,20 +156,20 @@ Here is the example usage to read integer value from defined database path "/tes
 
   int val = 0;
 
-  if (Firebase.getInt(firebaseData, "/test/int")) {
+  if (Firebase.getInt(fbdo, "/test/int")) {
 
     //Success, then read the payload value
 
     //Make sure payload value returned from server is integer
     //This prevent you to get garbage data
-    if (firebaseData.dataType() == "int")) {
-      val = firebaseData.intData();
+    if (fbdo.dataType() == "int")) {
+      val = fbdo.intData();
       Serial.println(val);
     }
 
   } else {
     //Failed, then print out the error detail
-    Serial.println(firebaseData.errorReason());
+    Serial.println(fbdo.errorReason());
   }
 
 ```
@@ -192,17 +191,17 @@ Below is the example usage to store or set float value to database at "/test/flo
 ```cpp
 
 
-if (Firebase.setFloat(firebaseData, "/test/float_data", 123.456789)){
+if (Firebase.setFloat(fbdo, "/test/float_data", 123.456789)){
 
   //Success, then read the payload value return from server
   //This confirmed that your data was set to database as float number
 
-  if (firebaseData.dataType() == "float")
-    Serial.println(firebaseData.floatData());
+  if (fbdo.dataType() == "float")
+    Serial.println(fbdo.floatData());
 
 } else {
   //Failed, then print out the error detail
-    Serial.println(firebaseData.errorReason());
+    Serial.println(fbdo.errorReason());
 }
 
 ```
@@ -211,16 +210,16 @@ if (Firebase.setFloat(firebaseData, "/test/float_data", 123.456789)){
 
 
 
-**To append new data to database, `push<Data Type>` should be called e.g. pushInt, pushFloat, pushDouble, pushBool, pushString and pushJSON.**
+**To append new data to database, `push<Data Type>` should be called e.g. pushInt, pushFloat, pushDouble, pushBool, pushString, pushJSON and pushArray.**
 
 
 With push operation, server will return payload (key or name of newly appended node) to client.
 
 Working with JSON data allow us to read or store multiple data at once because JSON data can store many key/value pairs, array of object and nested objects.
 
-Function setJSON will set/replace value at defined database path with value in JSON data, and also create child nodes.  
+Function setJSON or setArray will set/replace value at defined database path with value in JSON or array data, and also create child nodes.  
 
-While in function pushJSON, all key/value in JSON data  will be appended to the defined database path as new node.
+While in function pushJSON or pushArray , all key/value in JSON or array data  will be appended to the defined database path as new node.
 
 Below is the example for appending new data (using JSON) to the path "/test/append.
 
@@ -231,23 +230,23 @@ Below is the example for appending new data (using JSON) to the path "/test/appe
 
 String jsonData = "{\"parent_001\":\"parent 001 text\", \"parent 002\":{\"child_of_002\":123.456}}";
 
-if (Firebase.pushJSON(firebaseData, "/test/append", jsonData)) {
+if (Firebase.pushJSON(fbdo, "/test/append", jsonData)) {
 
   //Success, then read the payload value
 
   //Database path to be appended
-  Serial.println(firebaseData.dataPath()); //Should be "/test/append"
+  Serial.println(fbdo.dataPath()); //Should be "/test/append"
 
   //New created key/name
-  Serial.println(firebaseData.pushName());
+  Serial.println(fbdo.pushName());
 
   //Absolute path of new appended data
-    Serial.println(firebaseData.dataPath() + "/"+ firebaseData.pushName());
+    Serial.println(fbdo.dataPath() + "/"+ fbdo.pushName());
 
 
 } else {
   //Failed, then print out the error detail
-  Serial.println(firebaseData.errorReason());
+  Serial.println(fbdo.errorReason());
 }
 
 ```
@@ -276,25 +275,25 @@ Below is the example for database update at "/test" using JSON data.
 
 String updateData = "{\"data1\":\"value1\", \"data2\":{\"_data2\":\"_value2\"}}";
 
-if (Firebase.updateNode(firebaseData, "/test/update", updateData)) {
+if (Firebase.updateNode(fbdo, "/test/update", updateData)) {
 
   //Success, then try to read the payload value
 
   //Database path that updated
-  Serial.println(firebaseData.dataPath());
+  Serial.println(fbdo.dataPath());
 
   //Data type at updated database path
-  Serial.println(firebaseData.dataType()); //Should be "json"
+  Serial.println(fbdo.dataType()); //Should be "json"
 
   //Print the JSON string payload that returned from server
-  Serial.println(firebaseData.jsonData()); //Should mathes the value in updateData variable
+  Serial.println(fbdo.jsonData()); //Should mathes the value in updateData variable
 
   //Actual sent payload JSON data
   Serial.println(updateData);
 
 } else {
   //Failed, then print out the error detail
-  Serial.println(firebaseData.errorReason());
+  Serial.println(fbdo.errorReason());
 }
 
 ```
@@ -310,7 +309,7 @@ Below example will delete data and its child nodes at "/test/append"
 
 ```cpp
 
-Firebase.deleteNode(firebaseData, "/test/append");
+Firebase.deleteNode(fbdo, "/test/append");
 
 ```
 
@@ -368,15 +367,15 @@ query.endAt(8);
 query.limitToLast(5);
 
 
-if (Firebase.getJSON(firebaseData, "/test/data", query))
+if (Firebase.getJSON(fbdo, "/test/data", query))
 {
   //Success, then try to read the JSON payload value
-  Serial.println(firebaseData.jsonData());
+  Serial.println(fbdo.jsonData());
 }
 else
 {
   //Failed to get JSON data at defined database path, print out the error reason
-  Serial.println(firebaseData.errorReason());
+  Serial.println(fbdo.errorReason());
 }
 
  //Release memory used by query object
@@ -420,44 +419,44 @@ Here is the example use of stream to handle the changes or updates at "/test/dat
 
 //In setup(), set the streaming path to "/test/data" and begin stream connection
 
-if (!Firebase.beginStream(firebaseData, "/test/data"))
+if (!Firebase.beginStream(fbdo, "/test/data"))
 {
   //Could not begin stream connection, then print out the error detail
-  Serial.println(firebaseData.errorReason());
+  Serial.println(fbdo.errorReason());
 }
 
 //In loop()
 
 
- if (!Firebase.readStream(firebaseData))
+ if (!Firebase.readStream(fbdo))
   {
     //If read stream was failed, print the error detail.
-    Serial.println(firebaseData.errorReason());
+    Serial.println(fbdo.errorReason());
   }
 
-  if (firebaseData.streamTimeout())
+  if (fbdo.streamTimeout())
   {
      //If stream timeout, just notify
     Serial.println("Stream timeout, resume streaming...");
     Serial.println();
   }
 
-  if (firebaseData.streamAvailable())
+  if (fbdo.streamAvailable())
   {
    
    //Print out value
    //Stream data can be many types which can be determined from function dataType
 
-    if (firebaseData.dataType() == "int")
-      Serial.println(firebaseData.intData());
-    else if (firebaseData.dataType() == "float")
-      Serial.println(firebaseData.floatData());
-    else if (firebaseData.dataType() == "boolean")
-      Serial.println(firebaseData.boolData());
-    else if (firebaseData.dataType() == "string")
-      Serial.println(firebaseData.stringData());
-    else if (firebaseData.dataType() == "json")
-      Serial.println(firebaseData.jsonData());
+    if (fbdo.dataType() == "int")
+      Serial.println(fbdo.intData());
+    else if (fbdo.dataType() == "float")
+      Serial.println(fbdo.floatData());
+    else if (fbdo.dataType() == "boolean")
+      Serial.println(fbdo.boolData());
+    else if (fbdo.dataType() == "string")
+      Serial.println(fbdo.stringData());
+    else if (fbdo.dataType() == "json")
+      Serial.println(fbdo.jsonData());
     
   }
 
@@ -628,6 +627,26 @@ which its value can be accessed via function \<firebase data object\>.pushName()
 
 ```cpp
 bool pushJSON(FirebaseData &fbdo, const String &path, const String &jsonString);
+```
+
+
+
+
+**Append new child nodes's key and value (using JSON array data) to the defined database path.**
+
+param **`fbdo`** - Firebase Data Object to hold data and instances.
+
+param **`path`** - Target database path which key and value in JSON data will be appended.
+
+param **`arrayString`** - The appended JSON array string (should be valid JSON array data).
+
+return **`Boolean`** type status indicates the success of operation.
+
+The new appended node's key will be stored in Firebase Data object, 
+which its value can be accessed via function \<firebase data object\>.pushName().
+
+```cpp
+bool pushJSON(FirebaseData &fbdo, const String &path, const String &arrayString);
 ```
 
 
@@ -806,6 +825,33 @@ payload returned from server.
 bool setJSON(FirebaseData &fbdo, const String &path, const String &jsonString);
 ```
 
+
+
+
+
+
+**Set child nodes's key and value (using JSON array data) to the defined database path.**
+
+This will replace any child nodes inside the defined path with node' s key
+and value defined in JSON array data.
+
+param **`fbdo`** - Firebase Data Object to hold data and instances.
+
+param **`path`** - Target database path which key and value in JSON array data will be replaced or set.
+
+param **`arrayString`** - The JSON string to set (should be valid JSON array data).
+
+return **`Boolean`** type status indicates the success of operation.
+
+Call \<firebase data object\>.dataType to determine what type of data that successfully
+stores in database. 
+ 
+Call \<firebase data object\>.arrayData will return the JSON array string value of
+payload returned from server.
+
+```cpp
+bool setArray(FirebaseData &fbdo, const String &path, const String &arrayString);
+```
 
 
 
