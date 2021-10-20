@@ -54,9 +54,9 @@ This following devices were tested and work well.
 
 * Supports **Data Filtering** using the orderBy, limitToFirst, limitToLast, startAt, endAt, and equalTo query parameters.
 
-* Supports integer, float, boolean, string and JSON string data types.
+* Supports integer, double, float, boolean, string and JSON and array string data types.
 
-  For JSON string data type, parsing as an object required external JSON parser library e.g. [**ArduinoJson**](https://github.com/bblanchon/ArduinoJson).
+  For JSON and array string data type, making and parsing as an object required external JSON parser library e.g. [**FirebaseJson**](https://github.com/mobizt/FirebaseJson).
 
 * Supports **automatic stream resuming** when the stream connection was timeout. 
 
