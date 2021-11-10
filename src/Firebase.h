@@ -1,8 +1,8 @@
 /**
- * Firebase.h, version 1.0.1
+ * Firebase.h, version 1.0.2
  * 
  * 
- * Created: October 20, 2021
+ * Created: November 10, 2021
  * 
  * This library provides ARM/AVR WIFI Development Boards to perform REST API by GET PUT, POST, PATCH, DELETE data from/to with Google's Firebase database using get, set, update
  * and delete calls.
@@ -45,11 +45,9 @@
 #else
 #error Architecture or board not supported.
 #endif
-
 #define FIEBASE_PORT 443
 #define FIREBASE_RESPONSE_SIZE 400
 #define KEEP_ALIVE_TIMEOUT 30000
-
 
 const char C_STR_0[] PROGMEM = "{\".sv\": \"timestamp\"}";
 const char C_STR_1[] PROGMEM = "/";
@@ -674,7 +672,8 @@ private:
     char *newS(char *p, size_t len, char *d);
     char *strP(PGM_P pgm);
     void strP(char *buf, PGM_P pgm, bool empty = false);
-
+    unsigned long long wstrtoull(const char *s);
+    long long wstrtoll(const char *s);
     void sendHeader(FirebaseData &fbdo, const char *host, uint8_t _method, const char *path, const char *auth, uint16_t payloadLength);
     void resetFirebasedataFlag(FirebaseData &fbdo);
     bool handleNetClientNotConnected(FirebaseData &fbdo);
@@ -740,105 +739,109 @@ private:
      * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
     */
 
-    char *dtostrf(double val, signed char width, unsigned char prec, char *sout)
-    {
-        //Commented code is the original version
-        /***
+    #if defined (__arm__)
+
+        char *dtostrf(double val, signed char width, unsigned char prec, char *sout)
+        {
+            //Commented code is the original version
+            /***
           char fmt[20];
           sprintf(fmt, "%%%d.%df", width, prec);
           sprintf(sout, fmt, val);
           return sout;
         */
 
-        // Handle negative numbers
-        uint8_t negative = 0;
-        if (val < 0.0)
-        {
-            negative = 1;
-            val = -val;
-        }
-
-        // Round correctly so that print(1.999, 2) prints as "2.00"
-        double rounding = 0.5;
-        for (int i = 0; i < prec; ++i)
-        {
-            rounding /= 10.0;
-        }
-
-        val += rounding;
-
-        // Extract the integer part of the number
-        unsigned long int_part = (unsigned long)val;
-        double remainder = val - (double)int_part;
-
-        if (prec > 0)
-        {
-            // Extract digits from the remainder
-            unsigned long dec_part = 0;
-            double decade = 1.0;
-            for (int i = 0; i < prec; i++)
+            // Handle negative numbers
+            uint8_t negative = 0;
+            if (val < 0.0)
             {
-                decade *= 10.0;
+                negative = 1;
+                val = -val;
             }
-            remainder *= decade;
-            dec_part = (int)remainder;
 
-            if (negative)
+            // Round correctly so that print(1.999, 2) prints as "2.00"
+            double rounding = 0.5;
+            for (int i = 0; i < prec; ++i)
             {
-                sprintf(sout, "-%ld.%0*ld", int_part, prec, dec_part);
+                rounding /= 10.0;
             }
-            else
+
+            val += rounding;
+
+            // Extract the integer part of the number
+            unsigned long int_part = (unsigned long)val;
+            double remainder = val - (double)int_part;
+
+            if (prec > 0)
             {
-                sprintf(sout, "%ld.%0*ld", int_part, prec, dec_part);
-            }
-        }
-        else
-        {
-            if (negative)
-            {
-                sprintf(sout, "-%ld", int_part);
+                // Extract digits from the remainder
+                unsigned long dec_part = 0;
+                double decade = 1.0;
+                for (int i = 0; i < prec; i++)
+                {
+                    decade *= 10.0;
+                }
+                remainder *= decade;
+                dec_part = (int)remainder;
+
+                if (negative)
+                {
+                    sprintf(sout, "-%ld.%0*ld", int_part, prec, dec_part);
+                }
+                else
+                {
+                    sprintf(sout, "%ld.%0*ld", int_part, prec, dec_part);
+                }
             }
             else
             {
-                sprintf(sout, "%ld", int_part);
+                if (negative)
+                {
+                    sprintf(sout, "-%ld", int_part);
+                }
+                else
+                {
+                    sprintf(sout, "%ld", int_part);
+                }
             }
-        }
-        // Handle minimum field width of the output string
-        // width is signed value, negative for left adjustment.
-        // Range -128,127
-        char fmt[129] = "";
-        unsigned int w = width;
-        if (width < 0)
-        {
-            negative = 1;
-            w = -width;
-        }
-        else
-        {
-            negative = 0;
-        }
-
-        if (strlen(sout) < w)
-        {
-            memset(fmt, ' ', 128);
-            fmt[w - strlen(sout)] = '\0';
-            if (negative == 0)
+            // Handle minimum field width of the output string
+            // width is signed value, negative for left adjustment.
+            // Range -128,127
+            char fmt[129] = "";
+            unsigned int w = width;
+            if (width < 0)
             {
-                char *tmp = (char *)malloc(strlen(sout) + 1);
-                strcpy(tmp, sout);
-                strcpy(sout, fmt);
-                strcat(sout, tmp);
-                free(tmp);
+                negative = 1;
+                w = -width;
             }
             else
             {
-                // left adjustment
-                strcat(sout, fmt);
+                negative = 0;
             }
+
+            if (strlen(sout) < w)
+            {
+                memset(fmt, ' ', 128);
+                fmt[w - strlen(sout)] = '\0';
+                if (negative == 0)
+                {
+                    char *tmp = (char *)malloc(strlen(sout) + 1);
+                    strcpy(tmp, sout);
+                    strcpy(sout, fmt);
+                    strcat(sout, tmp);
+                    free(tmp);
+                }
+                else
+                {
+                    // left adjustment
+                    strcat(sout, fmt);
+                }
+            }
+
+            return sout;
         }
 
-        return sout;
-    }
+    #endif
 
     void init(size_t sz)
     {

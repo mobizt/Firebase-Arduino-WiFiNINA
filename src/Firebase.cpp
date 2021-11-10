@@ -1,8 +1,8 @@
 /**
- * Firebase.cpp, version 1.0.1
+ * Firebase.cpp, version 1.0.2
  * 
  * 
- * Created: October 20, 2021
+ * Created: November 10, 2021
  * 
  * This library provides ARM/AVR WIFI Development Boards to perform REST API by GET PUT, POST, PATCH, DELETE data from/to with Google's Firebase database using get, set, update
  * and delete calls.
@@ -1385,9 +1385,13 @@ void Firebase_Class::setDataType(FirebaseData &fbdo, const char *data)
       }
       else
       {
-        char *eptr;
 
+#if defined(__AVR__)
+        unsigned long long v1 = (data[0] == '-') ? wstrtoull(&data[1]) : wstrtoull(data);
+#else
+        char *eptr;
         unsigned long long v1 = (data[0] == '-') ? strtoull(&data[1], &eptr, 10) : strtoull(data, &eptr, 10);
+#endif
 
         unsigned long long v2 = (sizeof(int) == 2) ? 0xffff / 2 : 0xffffffff / 2;
 
@@ -1407,6 +1411,43 @@ void Firebase_Class::setDataType(FirebaseData &fbdo, const char *data)
   }
 
   fbdo._dataTypeNum = fbdo._dataType;
+}
+
+unsigned long long Firebase_Class::wstrtoull(const char *s)
+{
+  unsigned long long y = 0;
+
+  for (int i = 0; i < strlen(s); i++)
+  {
+    char c = s[i];
+    if (c < '0' || c > '9')
+      break;
+    y *= 10;
+    y += (c - '0');
+  }
+
+  return y;
+}
+
+long long Firebase_Class::wstrtoll(const char *s)
+{
+  long long y = 0;
+
+  int ofs = s[0] == '-' ? 1 : 0;
+
+  for (int i = ofs; i < strlen(s); i++)
+  {
+    char c = s[i];
+    if (c < '0' || c > '9')
+      break;
+    y *= 10;
+    y += (c - '0');
+  }
+
+  if (ofs == 1)
+    y *= -1;
+
+  return y;
 }
 
 void Firebase_Class::resetFirebasedataFlag(FirebaseData &fbdo)
@@ -1715,8 +1756,13 @@ unsigned long long FirebaseData::uint64Data()
 {
   if (_data != "" && (_dataType == firebase_data_type_unsigned_integer64 || _dataType == firebase_data_type_integer || _dataType == firebase_data_type_double || _dataType == firebase_data_type_float))
   {
+#if defined(__AVR__)
+    unsigned long long v = Firebase.wstrtoull(_data.c_str());
+#else
     char *eptr;
     unsigned long long v = strtoull(_data.c_str(), &eptr, 10);
+#endif
+
     return v;
   }
   else
@@ -1727,8 +1773,12 @@ long long FirebaseData::int64Data()
 {
   if (_data != "" && (_dataType == firebase_data_type_integer64 || _dataType == firebase_data_type_integer || _dataType == firebase_data_type_double || _dataType == firebase_data_type_float))
   {
+#if defined(__AVR__)
+    long long v = Firebase.wstrtoll(_data.c_str());
+#else
     char *eptr;
     long long v = strtoll(_data.c_str(), &eptr, 10);
+#endif
     return v;
   }
   else

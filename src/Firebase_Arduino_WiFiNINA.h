@@ -1,17 +1,15 @@
 /**
- * Google's Firebase Realtime Database Arduino Library for ARM/AVR WIFI Dev Boards based on WiFiNINA library, version 1.2.2
+ * Google's Firebase Realtime Database Arduino Library for ARM/AVR WIFI Dev Boards based on WiFiNINA library, version 1.2.3
  * 
  * This library required WiFiNINA Library to be installed.
  * https://github.com/arduino-libraries/WiFiNINA
  * 
- * Created: October 20, 2021
+ * Created: November 10, 2021
  * 
- * Feature Added:
- * - Add JSON array supports in getArray, setArray and pushArray.
- * - Add generic get function.
  * 
  * Feature Fixed:
- * - Fix invalid error reason report.
+ * - Fix compilation error in avr and Arduino IDE.
+ * - Fix conversion from double to string issue in avr.
  * 
  * 
  * This library provides ARM/AVR WIFI Development Boards to perform REST API by GET PUT, POST, PATCH, DELETE data from/to with Google's Firebase database using get, set, update 
@@ -42,4 +40,6 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
+#include <SPI.h>
+#include <WiFiNINA.h>
 #include "Firebase.h"
