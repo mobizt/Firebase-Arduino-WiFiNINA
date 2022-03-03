@@ -44,6 +44,8 @@ beginStream	KEYWORD2
 readStream	KEYWORD2
 endStream	KEYWORD2
 errorToString	KEYWORD2
+clear   KEYWORD2
+end KEYWORD2
 
 ###############################################
 # Methods for Firebase Data object (KEYWORD2)

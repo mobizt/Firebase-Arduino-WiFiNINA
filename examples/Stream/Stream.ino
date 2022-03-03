@@ -5,7 +5,7 @@
  * 
  * Github: https://github.com/mobizt
  * 
- * Copyright (c) 2021 mobizt
+ * Copyright (c) 2022 mobizt
  *
 */
 
@@ -102,6 +102,10 @@ void loop()
     {
       Serial.println("error, "+ fbdo.errorReason());
     }
+
+    // clear internal memory used
+    fbdo.clear();
+
     Serial.println();
   }
 
@@ -146,5 +150,8 @@ void loop()
     else if (stream.dataType() == "array")
       Serial.println(stream.arrayData());
     Serial.println();
+
+    // clear internal memory used
+    stream.clear();
   }
 }

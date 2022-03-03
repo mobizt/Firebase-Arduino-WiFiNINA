@@ -5,7 +5,7 @@
  * 
  * Github: https://github.com/mobizt
  * 
- * Copyright (c) 2021 mobizt
+ * Copyright (c) 2022 mobizt
  *
 */
 
@@ -122,6 +122,9 @@ void setup()
 
   //Release memory used by query object
   query.end();
+
+  // clear internal memory used
+  fbdo.clear();
 }
 
 void loop()

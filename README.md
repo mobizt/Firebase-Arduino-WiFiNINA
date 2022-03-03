@@ -1,25 +1,25 @@
 # Firebase RTDB Arduino Client for ARM/AVR WIFI Dev Boards
 
 
-Google's Firebase Realtime Database Arduino Library for ARM/AVR WIFI Development Boards based on WiFiNINA library, v 1.2.3
+Google's Firebase Realtime Database Arduino Library based on WiFiNINA library, v1.2.4
 
-This client library provides the most reliable operations for read, store, and update the Firebase RTDB through the REST API.
+This library supports Arduino NANO 33 IoT, Arduino MKR WiFi 1010, Arduino MKR VIDOR 4000, Arduino Nano RP2040 Connect and Arduino UNO WiFi Rev.2. 
 
-
-The library supports Arduino NANO 33 IoT, Arduino MKR WiFi 1010, Arduino MKR VIDOR 4000 and Arduino UNO WiFi Rev.2. 
-
-Due to the different of platform's available memory, flash size, and WiFiClient functionalities which required the performance and memory optimization rather than the compatibility viewpoint of the standard Arduino WiFiClient function, the Firebase libraries will be fine tuned for different WiFi capable platforms.
-
-Install the library on the WiFi capable device is highly recommended. For non-WiFi capable devices, using the WiFi-Serial bridge libraries and similar firmwares included AT in ESP8266 and ESP32 WiFi moules that claim to be working are not highly recommended due to lack of performance. 
+This library aims to keep support low memory and flash space device like UNO WiFi Rev.2 with simple Firebase RTDB functions.
 
 
-For Espressif MCUs, please try [ESP8266 Firebase Arduino library]( https://github.com/mobizt/Firebase-ESP8266) and [ESP32 Firebase Arduino library]( https://github.com/mobizt/Firebase-ESP32)
+For other devices with larger memory and flash space, please try
+
+[Firebase-ESP8266](https://github.com/mobizt/Firebase-ESP8266)
+
+[Firebase-ESP32](https://github.com/mobizt/Firebase-ESP32)
+
+[Firebase-ESP-Client](https://github.com/mobizt/Firebase-ESP-Client)
+
+[Firebase-Arduino-WiFi101](https://github.com/mobizt/Firebase-Arduino-WiFi101)
 
 
-For Arduino WiFi Shield 101 and Arduino MKR1000 WIFI, please try [Firebase Arduino Library for ARM/AVR WIFI Dev Boards based on WiFi101](https://github.com/mobizt/Firebase-Arduino-WiFi101)
-
-
-Copyright (c) 2019 K. Suwatchai (Mobizt).
+Copyright (c) 2022 K. Suwatchai (Mobizt).
 
 
 
@@ -28,12 +28,11 @@ Copyright (c) 2019 K. Suwatchai (Mobizt).
 ## Tested Devices
 
 
-This following devices were tested and work well.
+The following devices were tested and work well.
 
  * Arduino UNO WiFi Rev.2
 
  * Arduino MKR WiFi 1010
-
 
 
 
@@ -1512,13 +1511,28 @@ String payload();
 
 
 
+**Clear internal memory included payload without closing the TCP connection.**
+
+```cpp
+void clear();
+```
+
+
+**Close socket connection, free all resources.**
+
+```cpp
+void end();
+```
+
+
+
 
 
 ## License
 
 The MIT License (MIT)
 
-Copyright (c) 2021 K. Suwatchai (Mobizt)
+Copyright (c) 2022 K. Suwatchai (Mobizt)
 
 
 Permission is hereby granted, free of charge, to any person returning a copy of
