@@ -1,5 +1,5 @@
 /**
- * Google's Firebase Realtime Database Arduino Library for ARM/AVR WIFI Dev Boards based on WiFiNINA library, version 1.2.4
+ * Google's Firebase Realtime Database Arduino Library for ARM/AVR WIFI Dev Boards based on WiFiNINA library, version 1.2.5
  *
  * This library required WiFiNINA Library to be installed.
  * https://github.com/arduino-libraries/WiFiNINA
@@ -8,7 +8,6 @@
  *
  * Updates:
  * - Reduced program size.
- * - Optimized memory usage.
  * - Improve stabilities.
  *
  *

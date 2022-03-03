@@ -1,5 +1,5 @@
 /**
- * Firebase.h, version 1.0.3
+ * Firebase.h, version 1.0.4
  *
  *
  * Created: March 3, 2022
@@ -169,10 +169,10 @@ public:
     void equalTo(int);
     void equalTo(const String &);
 
-    // Clear all query
+    //Clear all query
     void clearQuery();
 
-    // Release memory used by QueryFilter object
+    //Release memory used by QueryFilter object
     void end();
 
     friend Firebase_Class;
@@ -204,13 +204,13 @@ public:
      * @param auth database secret.
      * @param wifiSSID Your WiFi AP SSID.
      * @param wifiPSW Your WiFi AP Password.
-     */
+    */
     void begin(const String &host, const String &auth, const String &wifiSSID, const String &wifiPSW);
 
     /**
      * Reconnect WiFi if lost connection.
      * @param reconnect The boolean to set/unset WiFi AP reconnection.
-     */
+    */
     void reconnectWiFi(bool reconnect);
 
     /**
@@ -219,10 +219,10 @@ public:
      * @param path Target database path which integer value will be appended.
      * @param intValue The appended value.
      * @return Boolean type status indicates the success of operation.
-     *
+     * 
      * The new appended node's key will be stored in Firebase Data object,
      * which its value can be accessed via function <firebase data object>.pushName().
-     */
+    */
     bool pushInt(FirebaseData &fbdo, const String &path, int intValue);
 
     /**
@@ -231,10 +231,10 @@ public:
      * @param path Target database path which double value will be appended.
      * @param dblValue The appended value.
      * @return Boolean type status indicates the success of operation.
-     *
+     * 
      * The new appended node's key will be stored in Firebase Data object,
      * which its value can be accessed via function <firebase data object>.pushName().
-     */
+    */
     bool pushDouble(FirebaseData &fbdo, const String &path, double dblValue);
 
     /**
@@ -243,10 +243,10 @@ public:
      * @param path Target database path which float value will be appended.
      * @param floatValue The appended value.
      * @return Boolean type status indicates the success of operation.
-     *
+     * 
      * The new appended node's key will be stored in Firebase Data object,
      * which its value can be accessed via function <firebase data object>.pushName().
-     */
+    */
     bool pushFloat(FirebaseData &fbdo, const String &path, float floatValue);
 
     /**
@@ -255,10 +255,10 @@ public:
      * @param path Target database path which Boolean value will be appended.
      * @param boolValue The appended value.
      * @return Boolean type status indicates the success of operation.
-     *
+     * 
      * The new appended node's key will be stored in Firebase Data object,
      * which its value can be accessed via function <firebase data object>.pushName().
-     */
+    */
     bool pushBool(FirebaseData &fbdo, const String &path, bool boolValue);
 
     /**
@@ -281,10 +281,10 @@ public:
      * @param path Target database path which key and value in JSON data will be appended.
      * @param jsonString The appended JSON string (should be valid JSON data).
      * @return Boolean type status indicates the success of operation.
-     *
+     * 
      * The new appended node's key will be stored in Firebase Data object,
      * which its value can be accessed via function <firebase data object>.pushName().
-     */
+    */
     bool pushJSON(FirebaseData &fbdo, const String &path, const String &jsonString);
 
     /**
@@ -293,10 +293,10 @@ public:
      * @param path Target database path which key and value in JSON data will be appended.
      * @param arrayString The appended JSON array string (should be valid JSON array data).
      * @return Boolean type status indicates the success of operation.
-     *
+     * 
      * The new appended node's key will be stored in Firebase Data object,
      * which its value can be accessed via function <firebase data object>.pushName().
-     */
+    */
     bool pushArray(FirebaseData &fbdo, const String &path, const String &arrayString);
 
     /**
@@ -304,10 +304,10 @@ public:
      * @param fbdo Firebase Data Object.
      * @param path Target database path which timestamp will be appended.
      * @return Boolean type status indicates the success of operation.
-     *
+     * 
      * The new appended node's key will be stored in Firebase Data object,
      * which its value can be accessed via function <firebase data object>.pushName().
-     */
+    */
     bool pushTimestamp(FirebaseData &fbdo, const String &path);
 
     /**
@@ -316,11 +316,11 @@ public:
      * @param path Target database path which integer data will be set.
      * @param dblValue Double value to set.
      * @return Boolean type status indicates the success of operation.
-     *
+     * 
      * Call <firebase data object>.dataType to determine what type of data that successfully stores in database.
-     *
+     * 
      * Call <firebase data object>.doubleData will return the double value of payload returned from server.
-     */
+    */
     bool setDouble(FirebaseData &fbdo, const String &path, double dblValue);
 
     /**
@@ -329,11 +329,11 @@ public:
      * @param path Target database path which integer data will be set.
      * @param intValue Integer value to set.
      * @return Boolean type status indicates the success of operation.
-     *
+     * 
      * Call <firebase data object>.dataType to determine what type of data that successfully stores in database.
-     *
+     * 
      * Call <firebase data object>.intData will return the integer value of payload returned from server.
-     */
+    */
     bool setInt(FirebaseData &fbdo, const String &path, int intValue);
     bool setInt(FirebaseData &fbdo, const String &path, unsigned int intValue);
     bool setInt(FirebaseData &fbdo, const String &path, long intValue);
@@ -341,17 +341,17 @@ public:
     bool setInt(FirebaseData &fbdo, const String &path, long long intValue);
     bool setInt(FirebaseData &fbdo, const String &path, unsigned long long intValue);
 
-    /**
+    /** 
      * Set float data at the defined database path.
      * @param fbdo Firebase Data Object.
      * @param path Target database path which float data will be set.
      * @param floatValue Float value to set.
      * @return Boolean type status indicates the success of operation.
-     *
+     * 
      * Call <firebase data object>.dataType to determine what type of data that successfully stores in database.
-     *
+     * 
      * Call <firebase data object>.floatData will return the float value of payload returned from server.
-     */
+    */
     bool setFloat(FirebaseData &fbdo, const String &path, float floatValue);
 
     /**
@@ -360,13 +360,13 @@ public:
      * @param path Target database path which Boolean data will be set.
      * @param boolValue Boolean value to set.
      * @return Boolean type status indicates the success of operation.
-     *
+     * 
      * Call <firebase data object>.dataType to determine what type of data that successfully
      * stores in database.
-     *
+     * 
      * Call <firebase data object>.boolData will return the Boolean value of
      * payload returned from server.
-     */
+    */
     bool setBool(FirebaseData &fbdo, const String &path, bool boolValue);
 
     /**
@@ -375,43 +375,43 @@ public:
      * @param path Target database path which string data will be set.
      * @param stringValue String or text to set.
      * @return Boolean type status indicates the success of operation.
-     *
+     * 
      * Call <firebase data object>.dataType to determine what type of data that successfully stores in database.
-     *
+     * 
      * Call <firebase data object>.stringData will return the string value of payload returned from server.
-     */
+    */
     bool setString(FirebaseData &fbdo, const String &path, const String &stringValue);
 
     /**
      * Set child nodes's key and value (using JSON data) to the defined database path.
-     *
+     * 
      * This will replace any child nodes inside the defined path with node' s key and value defined in JSON data.
-     *
+     * 
      * @param fbdo Firebase Data Object.
      * @param path Target database path which key and value in JSON data will be replaced or set.
      * @param jsonString The JSON string to set (should be valid JSON data).
      * @return Boolean type status indicates the success of operation.
-     *
+     * 
      * Call <firebase data object>.dataType to determine what type of data that successfully stores in database.
-     *
+     * 
      * Call <firebase data object>.jsonData will return the JSON string value of payload returned from server.
-     */
+    */
     bool setJSON(FirebaseData &fbdo, const String &path, const String &jsonString);
 
     /**
      * Set child nodes's key and value (using JSON array data) to the defined database path.
-     *
+     * 
      * This will replace any child nodes inside the defined path with node' s key and value defined in JSON array data.
-     *
+     * 
      * @param fbdo Firebase Data Object.
      * @param path Target database path which key and value in JSON data will be replaced or set.
      * @param arrayString The JSON string to set (should be valid JSON array data).
      * @return Boolean type status indicates the success of operation.
-     *
+     * 
      * Call <firebase data object>.dataType to determine what type of data that successfully stores in database.
-     *
+     * 
      * Call <firebase data object>.arrayData or  <firebase data object>.jsonData will return the JSON array string value of payload returned from server.
-     */
+    */
     bool setArray(FirebaseData &fbdo, const String &path, const String &arrayString);
 
     /**
@@ -420,7 +420,7 @@ public:
      * @param path Target database path which timestamp will be set.
      * @return Boolean type status indicates the success of operation.
      * Call <firebase data object>.intData will return the integer value of timestamp returned from server.
-     */
+   */
 
     bool setTimestamp(FirebaseData &fbdo, const String &path);
 
@@ -430,13 +430,13 @@ public:
      * @param path Target database path which key and value in JSON data will be update.
      * @param jsonString The JSON string use for update.
      * @return Boolean type status indicates the success of operation.
-     *
+     * 
      * Call <firebase data object>.dataType to determine what type of data that successfully stores in database.
-     *
+     * 
      * Call <firebase data object>.jsonData will return the json string value of payload returned from server.
-     *
+     * 
      * To reduce the network data usage, use updateNodeSilent instead.
-     */
+    */
     bool updateNode(FirebaseData &fbdo, const String path, const String jsonString);
 
     /**
@@ -445,9 +445,9 @@ public:
      * @param path Target database path which key and value in JSON data will be update.
      * @param jsonString The JSON string use for update.
      * @return Boolean type status indicates the success of operation.
-     *
+     * 
      * Owing to the objective of this function to reduce the netwok data usage, no payload will be returned from server.
-     */
+    */
     bool updateNodeSilent(FirebaseData &fbdo, const String &path, const String &jsonString);
 
     /**
@@ -458,7 +458,7 @@ public:
      * @return Boolean type status indicates the success of operation.
      * Call <firebase data object>.dataType to determine what type of data that successfully
      * stores in database.
-     */
+    */
     bool get(FirebaseData &fbdo, const String &path);
 
     /**
@@ -466,18 +466,18 @@ public:
      * @param fbdo Firebase Data Object.
      * @param path Database path which the float value is being read.
      * @return Boolean type status indicates the success of operation.
-     *
+     * 
      * Call <firebase data object>.dataType to determine what type of data that successfully stores in database.
-     *
+     * 
      * Call <firebase data object>.intData, <firebase data object>.int64Data or
      * <firebase data object>.uint64Data will return the integer value of payload returned from server.
-     *
-     * If the payload returned from server is not integer, float or double type,
+     * 
+     * If the payload returned from server is not integer, float or double type, 
      * the function <firebase data object>.intData will return zero (0).
-     *
-     * If the payload returned from server is float or double type,
+     * 
+     * If the payload returned from server is float or double type, 
      * the function <firebase data object>.intData will return rounded integer value.
-     */
+    */
     bool getInt(FirebaseData &fbdo, const String &path);
 
     /**
@@ -485,14 +485,14 @@ public:
      * @param fbdo Firebase Data Object.
      * @param path Database path which the float value is being read.
      * @return Boolean type status indicates the success of operation.
-     *
+     * 
      * Call <firebase data object>.dataType to determine what type of data that successfully stores in database.
-     *
+     * 
      * Call <firebase data object>.floatData will return the float value of payload returned from server.
-     *
-     * If the payload returned from server is not integer, float or double type,
+     * 
+     * If the payload returned from server is not integer, float or double type, 
      * the function <firebase data object>.floatData will return zero (0).
-     */
+    */
     bool getFloat(FirebaseData &fbdo, const String &path);
 
     /**
@@ -500,16 +500,16 @@ public:
      * @param fbdo Firebase Data Object.
      * @param path Database path which the float value is being read.
      * @return Boolean type status indicates the success of operation.
-     *
+     * 
      * Call <firebase data object>.dataType to determine what type of data that successfully
      * stores in database.
-     *
+     * 
      * Call <firebase data object>.floatData will return the float value of
      * payload returned from server.
-     *
-     * If the payload returned from server is not integer, float or double type,
+     * 
+     * If the payload returned from server is not integer, float or double type, 
      * the function <firebase data object>.doubleData will return zero (0).
-     */
+    */
     bool getDouble(FirebaseData &fbdo, const String &path);
 
     /**
@@ -517,16 +517,16 @@ public:
      * @param fbdo Firebase Data Object.
      * @param path Database path which the Boolean value is being read.
      * @return Boolean type status indicates the success of operation.
-     *
+     * 
      * Call <firebase data object>.dataType to determine what type of data that successfully
      * stores in database.
-     *
+     * 
      * Call <firebase data object>.boolData will return the Boolean value of
      * payload returned from server.
-     *
+     * 
      * If the payload returned from server is not Boolean type,
      * the function <firebase data object>.boolData will return false.
-     */
+    */
     bool getBool(FirebaseData &fbdo, const String &path);
 
     /**
@@ -534,16 +534,16 @@ public:
      * @param fbdo Firebase Data Object.
      * @param path Database path which the string value is being read.
      * @return Boolean type status indicates the success of operation.
-     *
+     * 
      * Call <firebase data object>.dataType to determine what type of data that successfully
      * stores in database.
-     *
+     * 
      * Call <firebase data object>.stringData will return the string value of
      * payload returned from server.
-     *
-     * If the payload returned from server is not string type,
+     * 
+     * If the payload returned from server is not string type, 
      * the function <firebase data object>.stringData will return empty string (String object).
-     */
+    */
     bool getString(FirebaseData &fbdo, const String &path);
 
     /**
@@ -554,13 +554,13 @@ public:
      * @return Boolean type status indicates the success of operation.
      * Call <firebase data object>.dataType to determine what type of data that successfully
      * stores in database.
-     *
+     * 
      * Call <firebase data object>.jsonData will return the JSON string value of
      * payload returned from server.
-     *
+     * 
      * If the payload returned from server is not json or array type,
      * the function <firebase data object>.jsonData will return empty string (String object).
-     */
+    */
     bool getJSON(FirebaseData &fbdo, const String &path);
 
     /**
@@ -570,31 +570,31 @@ public:
      * @param path Database path which the string value is being read.
      * @param query QueryFilter class to set query parameters to filter data.
      * @return Boolean type status indicates the success of operation.
-     *
+     * 
      * Available query parameters for filtering the data are the following.
-     *
+     * 
      * QueryFilter.orderBy       Required parameter to specify which data used for data filtering included child key, key and value.
      *                           Use "$key" for filtering data by keys of all nodes at the defined database path.
      *                           Use "$value" for filtering data by value of all nodes at the defined database path.
      *                           Use "$priority" for filtering data by "virtual child" named .priority of all nodes.
      *                           Use  any child key to filter by that key.
-     *
+     * 
      * QueryFilter.limitToFirst  The total children (number) to filter from the first child.
      * QueryFilter.limitToLast   The total last children (number) to filter.
      * QueryFilter.startAt       Starting value of range (number or string) of query upon orderBy param.
      * QueryFilter.endAt         Ending value of range (number or string) of query upon orderBy param.
      * QueryFilter.equalTo       Value (number or string) matches the orderBy param
-     *
+     * 
      * Call <firebase data object>.dataType to determine what type of data that successfully
      * stores in database.
-     *
+     * 
      * Call <firebase data object>.jsonData will return the JSON string value of payload returned from server.
-     *
-     * If the payload returned from server is not json or array type,
+     * 
+     * If the payload returned from server is not json or array type, 
      * the function <firebase data object>.jsonData will return empty string (String object).
-     *
+     * 
      * <firebase data object>.jsonData will return null when the filtered data is empty.
-     */
+    */
     bool getJSON(FirebaseData &fbdo, const String &path, QueryFilter &query);
 
     /**
@@ -606,13 +606,13 @@ public:
      * @return Boolean type status indicates the success of operation.
      * Call <firebase data object>.dataType to determine what type of data that successfully
      * stores in database.
-     *
+     * 
      * Call <firebase data object>.arrayData will return the JSON array string value of
      * payload returned from server.
-     *
+     * 
      * If the payload returned from server is not json or array type,
      * the function <firebase data object>.arrayData will return empty string (String object).
-     */
+    */
     bool getArray(FirebaseData &fbdo, const String &path);
 
     bool getArray(FirebaseData &fbdo, const String &path, QueryFilter &query);
@@ -622,7 +622,7 @@ public:
      * @param fbdo Firebase Data Object.
      * @param path Database path to be deleted.
      * @return Boolean type status indicates the success of operation.
-     */
+    */
     bool deleteNode(FirebaseData &fbdo, const String path);
 
     /**
@@ -630,7 +630,7 @@ public:
      * @param fbdo Firebase Data Object.
      * @param path Database path being monitor.
      * @return Boolean type status indicates the success of operation.
-     */
+    */
     bool beginStream(FirebaseData &fbdo, const String path);
 
     /**
@@ -638,20 +638,20 @@ public:
      * Once beginStream was called e.g. in setup(), the readStream function should call inside the loop function.
      * @param fbdo Firebase Data Object.
      * @return Boolean type status indicates the success of operation.
-     *
-     * Using the same Firebase Data object for stream read/monitoring associated with getXXX, setXXX, pushXXX, updateNode and deleteNode will break or quit
+     * 
+     * Using the same Firebase Data object for stream read/monitoring associated with getXXX, setXXX, pushXXX, updateNode and deleteNode will break or quit 
      * the current stream connection.
      * The stream will be resumed or reconnected automatically when calling readStream.
-     */
+    */
     bool readStream(FirebaseData &fbdo);
 
     /**
      * End the stream connection at defined path.
-     *
+     * 
      * Can be restart again by calling beginStream.
      * @param fbdo Firebase Data Object.
      * @return Boolean type status indicates the success of operation.
-     */
+    */
     bool endStream(FirebaseData &fbdo);
 
     char *errorToString(int httpCode);
@@ -718,9 +718,9 @@ public:
     const char *get() const { return buf; }
 
 private:
-    /** dtostrf function is taken from
+    /** dtostrf function is taken from 
      * https://github.com/stm32duino/Arduino_Core_STM32/blob/master/cores/arduino/avr/dtostrf.c
-     */
+    */
 
     /***
      * dtostrf Emulation for dtostrf function from avr-libc
@@ -737,111 +737,111 @@ private:
      * You should have received a copy of the GNU Lesser General Public
      * License along with this library; if not, write to the Free Software
      * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-     */
-
-#if defined(__arm__)
-
-    char *dtostrf(double val, signed char width, unsigned char prec, char *sout)
-    {
-        // Commented code is the original version
-        /***
-      char fmt[20];
-      sprintf(fmt, "%%%d.%df", width, prec);
-      sprintf(sout, fmt, val);
-      return sout;
     */
 
-        // Handle negative numbers
-        uint8_t negative = 0;
-        if (val < 0.0)
+    #if defined (__arm__)
+
+        char *dtostrf(double val, signed char width, unsigned char prec, char *sout)
         {
-            negative = 1;
-            val = -val;
-        }
+            //Commented code is the original version
+            /***
+          char fmt[20];
+          sprintf(fmt, "%%%d.%df", width, prec);
+          sprintf(sout, fmt, val);
+          return sout;
+        */
 
-        // Round correctly so that print(1.999, 2) prints as "2.00"
-        double rounding = 0.5;
-        for (int i = 0; i < prec; ++i)
-        {
-            rounding /= 10.0;
-        }
-
-        val += rounding;
-
-        // Extract the integer part of the number
-        unsigned long int_part = (unsigned long)val;
-        double remainder = val - (double)int_part;
-
-        if (prec > 0)
-        {
-            // Extract digits from the remainder
-            unsigned long dec_part = 0;
-            double decade = 1.0;
-            for (int i = 0; i < prec; i++)
+            // Handle negative numbers
+            uint8_t negative = 0;
+            if (val < 0.0)
             {
-                decade *= 10.0;
+                negative = 1;
+                val = -val;
             }
-            remainder *= decade;
-            dec_part = (int)remainder;
 
-            if (negative)
+            // Round correctly so that print(1.999, 2) prints as "2.00"
+            double rounding = 0.5;
+            for (int i = 0; i < prec; ++i)
             {
-                sprintf(sout, "-%ld.%0*ld", int_part, prec, dec_part);
+                rounding /= 10.0;
             }
-            else
-            {
-                sprintf(sout, "%ld.%0*ld", int_part, prec, dec_part);
-            }
-        }
-        else
-        {
-            if (negative)
-            {
-                sprintf(sout, "-%ld", int_part);
-            }
-            else
-            {
-                sprintf(sout, "%ld", int_part);
-            }
-        }
-        // Handle minimum field width of the output string
-        // width is signed value, negative for left adjustment.
-        // Range -128,127
-        char fmt[129] = "";
-        unsigned int w = width;
-        if (width < 0)
-        {
-            negative = 1;
-            w = -width;
-        }
-        else
-        {
-            negative = 0;
-        }
 
-        if (strlen(sout) < w)
-        {
-            memset(fmt, ' ', 128);
-            fmt[w - strlen(sout)] = '\0';
-            if (negative == 0)
+            val += rounding;
+
+            // Extract the integer part of the number
+            unsigned long int_part = (unsigned long)val;
+            double remainder = val - (double)int_part;
+
+            if (prec > 0)
             {
-                char *tmp = (char *)malloc(strlen(sout) + 1);
-                strcpy(tmp, sout);
-                strcpy(sout, fmt);
-                strcat(sout, tmp);
-                free(tmp);
+                // Extract digits from the remainder
+                unsigned long dec_part = 0;
+                double decade = 1.0;
+                for (int i = 0; i < prec; i++)
+                {
+                    decade *= 10.0;
+                }
+                remainder *= decade;
+                dec_part = (int)remainder;
+
+                if (negative)
+                {
+                    sprintf(sout, "-%ld.%0*ld", int_part, prec, dec_part);
+                }
+                else
+                {
+                    sprintf(sout, "%ld.%0*ld", int_part, prec, dec_part);
+                }
             }
             else
             {
-                // left adjustment
-                strcat(sout, fmt);
+                if (negative)
+                {
+                    sprintf(sout, "-%ld", int_part);
+                }
+                else
+                {
+                    sprintf(sout, "%ld", int_part);
+                }
             }
+            // Handle minimum field width of the output string
+            // width is signed value, negative for left adjustment.
+            // Range -128,127
+            char fmt[129] = "";
+            unsigned int w = width;
+            if (width < 0)
+            {
+                negative = 1;
+                w = -width;
+            }
+            else
+            {
+                negative = 0;
+            }
+
+            if (strlen(sout) < w)
+            {
+                memset(fmt, ' ', 128);
+                fmt[w - strlen(sout)] = '\0';
+                if (negative == 0)
+                {
+                    char *tmp = (char *)malloc(strlen(sout) + 1);
+                    strcpy(tmp, sout);
+                    strcpy(sout, fmt);
+                    strcat(sout, tmp);
+                    free(tmp);
+                }
+                else
+                {
+                    // left adjustment
+                    strcat(sout, fmt);
+                }
+            }
+
+            return sout;
         }
 
-        return sout;
-    }
-
-#endif
+    #endif
 
     void init(size_t sz)
     {
@@ -975,37 +975,37 @@ public:
     /**
      * Get WiFi client instance.
      * @return WiFi client instance.
-     */
+    */
     WiFiSSLClient getWiFiClient();
 
     /**
      * Pause/Unpause WiFiClient from all Firebase operations.
      * @param pause The boolean to set/unset pause operation.
      * @return Boolean type status indicates the success of operation.
-     */
+    */
     bool pauseFirebase(bool pause);
 
     /**
      * Determine the data type of payload returned from server.
      * @return The one of these data type e.g. integer, float, string and json.
-     */
+    */
     String dataType();
 
     /**
      * Determine the event type of stream.
      * @return The one of these event type e.g. put, patch, cancel, and auth_revoked.
-     *
+     * 
      * The event type "put" indicated that data at event path relative to stream path was completely changed. Event path can be determined from dataPath().
      * The event type "patch" indicated that data at event path relative to stream path was updated. Event path can be determined from dataPath().
      * The event type "cancel" indeicated something wrong and cancel by server.
      * The event type "auth_revoked" indicated the provided Firebase Authentication Data (Database secret) is no longer valid.
-     */
+    */
     String eventType();
 
     /**
      * Determine the current stream path.
      * @return The database streaming path.
-     */
+    */
     String streamPath();
 
     /**
@@ -1013,19 +1013,19 @@ public:
      * @return The database path which belong to server's returned payload.
      * The database path returned from this function in case of stream, also changed up on the child or parent's stream
      * value changes.
-     */
+    */
     String dataPath();
 
     /**
      * Determine the error reason String from process.
      * @return The error description string (String object).
-     */
+    */
     String errorReason();
 
     /**
      * Return the ineger data of server returned payload.
      * @return Integer value.
-     */
+    */
     int intData();
     long long int64Data();
     unsigned long long uint64Data();
@@ -1033,68 +1033,68 @@ public:
     /**
      * Return the float data of server returned payload.
      * @return Float value.
-     */
+    */
     double doubleData();
 
     /**
      * Return the float data of server returned payload.
      * @return Float value.
-     */
+    */
     float floatData();
 
     /**
      * Return the Boolean data of server returned payload.
      * @return Boolean value.
-     */
+    */
     bool boolData();
 
     /**
      * Return the String data of server returned payload.
      * @return String (String object).
-     */
+    */
     String stringData();
 
     /**
      * Return the JSON String data of server returned payload.
      * @return String (String object).
-     */
+    */
     String jsonData();
 
     /**
      * Return the JSON array String data of server returned payload.
      * @return String (String object).
-     */
+    */
     String arrayData();
 
     /**
      * Return the new appended node's name or key of server returned payload when calling pushXXX function.
      * @return String (String object).
-     */
+    */
     String pushName();
 
     /**
      * Determine the stream connection status.
      * @return Boolean type status indicates whether the Firebase Data object is working with stream or not.
-     */
+    */
     bool isStream();
 
     /**
      * Determine the server connection status.
      * @return Boolean type status indicates whether the Firebase Data object is connected to server or not.
-     */
+    */
     bool httpConnected();
 
     /**
      * Determine the timeout event of server's stream (30 sec is default).
      * Nothing to do when stream connection timeout, the stream connection will be automatic resumed.
      * @return Boolean type status indicates whether the stream was timeout or not.
-     */
+    */
     bool streamTimeout();
 
     /**
      * Determine the availability of data or paylaod returned from server.
      * @return Boolean type status indicates whether the server return back the new payload or not.
-     */
+    */
     bool dataAvailable();
 
     /**
@@ -1108,26 +1108,26 @@ public:
      * Determine the matching between data type that intend to get from/store to database and the server's return payload data type.
      * @return Boolean type status indicates whether the type of data being get from/store to database
      * and server's returned payload are matched or not.
-     */
+    */
     bool mismatchDataType();
 
     /**
      * Determine the http status code return from server.
      * @return integer number of HTTP status.
-     */
+    */
     int httpCode();
 
     /**
      * Check overflow of the returned payload data buffer.
      * @return The overflow status.
      * Default buffer size is 400 bytes, assigned via FIREBASE_RESPONSE_SIZE macro in Firebase_Class.h
-     */
+    */
     bool bufferOverflow();
 
     /**
      * Return the server's payload data.
      * @return Payload string (String object).
-     */
+    */
     String payload();
 
     /**
@@ -1178,6 +1178,7 @@ private:
 
     unsigned long _dataMillis;
     Firebase_TCP_Client _tcpClient;
+   
 
     friend Firebase_Class;
 };

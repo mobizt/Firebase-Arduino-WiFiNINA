@@ -1,5 +1,5 @@
 /**
- * Firebase.cpp, version 1.0.3
+ * Firebase.cpp, version 1.0.4
  *
  *
  * Created: March 3, 2022
@@ -571,6 +571,7 @@ void Firebase_Class::getHeader(const char *buf, String &out, PGM_P hdr)
     {
       strncpy(tmp, buf + p1 + strlen_P(hdr), strlen(buf) - p1 - strlen_P(hdr));
       out = tmp;
+      delP(tmp);
     }
   }
 }

@@ -1,9 +1,9 @@
 /*
- * Firebase TCP Client library, version 1.0.0
+ * Firebase TCP Client library, version 1.0.1
  *
  *
  * Created: March 3, 2022
- *
+ * 
  * The MIT License (MIT)
  * Copyright (c) 2019 K. Suwatchai (Mobizt)
  *
@@ -32,6 +32,7 @@
 #include <Arduino.h>
 #include <SPI.h>
 #include "Config.h"
+
 
 /// TCP client errors
 #define TCP_ERROR_CONNECTION_REFUSED (-1)
@@ -86,23 +87,25 @@
 
 class Firebase_TCP_Client
 {
-public:
-  Firebase_TCP_Client();
-  ~Firebase_TCP_Client();
+  public:
+    Firebase_TCP_Client();
+    ~Firebase_TCP_Client();
 
-  bool begin(const char *host, uint16_t port);
-  bool connect(void);
-  bool connected(void);
-  int send(const char *data);
-  int available();
-  int read();
-  void close();
-  WiFiSSLClient client;
-  uint16_t client_timeout = 5000;
+    bool begin(const char *host, uint16_t port);
+    bool connect(void);
+    bool connected(void);
+    int send(const char *data);
+    int available();
+    int read();
+    void close();
+    WiFiSSLClient client;
+    uint16_t client_timeout = 5000;
 
-private:
-  String host;
-  uint16_t port = 0;
+  private:
+    
+    String host;
+    uint16_t port = 0;
+    
 };
 
 #endif /* Firebase_Arduino_WiFiNINA_TCPlient_H */
