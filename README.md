@@ -1,7 +1,5 @@
 # Firebase RTDB Arduino Client for ARM/AVR WIFI Dev Boards
 
-![](/media/images/flag.svg)
-
 Google's Firebase Realtime Database Arduino Library based on WiFiNINA library, v1.2.5
 
 This library supports Arduino NANO 33 IoT, Arduino MKR WiFi 1010, Arduino MKR VIDOR 4000, Arduino Nano RP2040 Connect and Arduino UNO WiFi Rev.2. 
@@ -1553,3 +1551,5 @@ COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+
+![](/media/images/stop.svg)
