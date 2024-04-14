@@ -1,5 +1,8 @@
 # Firebase RTDB Arduino Client for ARM/AVR WIFI Dev Boards
 
+[![GitHub Sponsors](https://img.shields.io/github/sponsors/mobizt?logo=github)](https://github.com/sponsors/mobizt)
+
+
 Google's Firebase Realtime Database Arduino Library based on WiFiNINA library, v1.2.5
 
 This library supports Arduino NANO 33 IoT, Arduino MKR WiFi 1010, Arduino MKR VIDOR 4000, Arduino Nano RP2040 Connect and Arduino UNO WiFi Rev.2. 
@@ -7,15 +10,8 @@ This library supports Arduino NANO 33 IoT, Arduino MKR WiFi 1010, Arduino MKR VI
 This library aims to keep support low memory and flash space device like UNO WiFi Rev.2 with simple Firebase RTDB functions.
 
 
-For other devices with larger memory and flash space, please try
-
-[Firebase-ESP8266](https://github.com/mobizt/Firebase-ESP8266)
-
-[Firebase-ESP32](https://github.com/mobizt/Firebase-ESP32)
-
-[Firebase-ESP-Client](https://github.com/mobizt/Firebase-ESP-Client)
-
-[Firebase-Arduino-WiFi101](https://github.com/mobizt/Firebase-Arduino-WiFi101)
+> [!WARNING] 
+> This This library is now obsoleted and replaced by the new [FirebaseClient](https://github.com/mobizt/FirebaseClient) library.
 
 
 Copyright (c) 2022 K. Suwatchai (Mobizt).
