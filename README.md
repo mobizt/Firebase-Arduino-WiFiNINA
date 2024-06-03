@@ -7,16 +7,16 @@ This library supports Arduino NANO 33 IoT, Arduino MKR WiFi 1010, Arduino MKR VI
 
 This library aims to keep support low memory and flash space device like UNO WiFi Rev.2 with simple Firebase RTDB functions.
 
-## We're moving to the new library
+## We have moved to the new library
 
 > [!WARNING] 
-> Due to the issues that cannot be fixed, this This library is now obsoleted and replaced by the new [FirebaseClient](https://github.com/mobizt/FirebaseClient) library.
+> This This library is now deprecated but no further supports for feature request.
+> We recommended the [FirebaseClient](https://github.com/mobizt/FirebaseClient) library for ongoing supports.
+> You have to read the library documentation thoroughly before use.
 
 The new async [FirebaseClient](https://github.com/mobizt/FirebaseClient) library is now availavle in Arduino IDE and PlatformIO's Library Manager.
 
 The new library provides simpler APIs interface, faster and more reliable operations.  It can use in both sync and async operations.
-
-All old Firebase libraries will be deprecated soon this year and we recommended to upgrade your current code to work with new async [FirebaseClient](https://github.com/mobizt/FirebaseClient) library instead.
 
 
 ## License
