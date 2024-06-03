@@ -10,7 +10,7 @@ This library aims to keep support low memory and flash space device like UNO WiF
 ## We have moved to the new library
 
 > [!WARNING] 
-> This This library is now deprecated but no further supports for feature request.
+> This library is now deprecated but no further supports for feature request.
 > We recommended the [FirebaseClient](https://github.com/mobizt/FirebaseClient) library for ongoing supports.
 > You have to read the library documentation thoroughly before use.
 
